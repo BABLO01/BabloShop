@@ -1,13 +1,140 @@
-import { useState, useEffect, useCallback, useRef } from "react";
+<!DOCTYPE html>
+<html lang="ur" dir="rtl">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0"/>
+  <title>بابلو شاپ — Bablo Shop</title>
+  <meta name="description" content="Professional Grocery Management by Muhammad Usman"/>
+  <meta name="theme-color" content="#3b82f6"/>
+  <link rel="manifest" href="manifest.json"/>
+  <link rel="apple-touch-icon" href="icon-192.png"/>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Nastaliq+Urdu:wght@400;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { height: 100%; }
+    body { font-family: 'Inter', sans-serif; background: #060e1c; color: #f1f5f9; overflow-x: hidden; }
+    input, select, button { font-family: inherit; }
+    input::placeholder { color: #94a3b8; }
+    select option { background: #0a1628; }
+    ::-webkit-scrollbar { width: 3px; height: 3px; }
+    ::-webkit-scrollbar-thumb { background: rgba(99,102,241,0.3); border-radius: 99px; }
+    .hv:hover { filter: brightness(1.08); }
+    .hv2:active { transform: scale(0.96); }
+    @keyframes pulse { 0%,100%{opacity:0.3;transform:scale(0.8)} 50%{opacity:1;transform:scale(1.2)} }
+    @keyframes su { from{transform:translateY(100%)} to{transform:translateY(0)} }
+    @keyframes suup { from{transform:translateY(100%)} to{transform:translateY(0)} }
+    @keyframes fi { from{opacity:0;transform:translateY(5px)} to{opacity:1;transform:none} }
+    .pi { animation: fi 0.2s ease; }
+    .nb { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 2px; background: none; border: none; cursor: pointer; padding: 5px 2px; transition: color 0.2s; }
+    .nb:active { transform: scale(0.9); }
+    .chip { border-radius: 99px; padding: 4px 11px; font-size: 11px; cursor: pointer; white-space: nowrap; border: 1px solid; transition: all 0.2s; }
+    .chip.on { background: linear-gradient(135deg,#3b82f6,#6366f1); border-color: #3b82f6 !important; color: #fff !important; }
+    .tab { flex: 1; padding: 8px; border-radius: 9px; border: 1px solid; font-size: 12px; cursor: pointer; transition: all 0.2s; }
+    .tab.on { background: linear-gradient(135deg,#3b82f6,#6366f1) !important; border-color: #3b82f6 !important; color: #fff !important; }
+    .pcrd { border-radius: 14px; padding: 12px 10px; position: relative; overflow: hidden; transition: transform 0.15s, box-shadow 0.15s; }
+    .pcrd:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(59,130,246,0.15); }
+    .img-upload-btn { display: flex; align-items: center; justify-content: center; gap: 6px; width: 100%; padding: 10px; border: 2px dashed; border-radius: 10px; cursor: pointer; font-size: 12px; transition: all 0.2s; background: none; }
+    .img-upload-btn:hover { border-color: #3b82f6 !important; color: #3b82f6 !important; }
+    #app { max-width: 520px; margin: 0 auto; min-height: 100vh; position: relative; }
+    .page-content { padding: 12px 12px 72px; position: relative; z-index: 1; }
+    #splash { position: fixed; inset: 0; background: linear-gradient(145deg,#060e1c,#0a1628,#060e1c); display: flex; align-items: center; justify-content: center; z-index: 9999; }
+    #toast { position: fixed; bottom: 68px; left: 50%; transform: translateX(-50%); padding: 8px 18px; border-radius: 99px; font-size: 12px; z-index: 700; white-space: nowrap; max-width: 280px; text-align: center; box-shadow: 0 4px 20px rgba(0,0,0,0.2); display: none; backdrop-filter: blur(20px); }
+    .orb1 { position: fixed; width: 260px; height: 260px; border-radius: 50%; background: radial-gradient(circle,rgba(59,130,246,0.13) 0%,transparent 70%); top: -60px; right: -60px; filter: blur(50px); pointer-events: none; z-index: 0; }
+    .orb2 { position: fixed; width: 220px; height: 220px; border-radius: 50%; background: radial-gradient(circle,rgba(99,102,241,0.1) 0%,transparent 70%); bottom: -50px; left: -50px; filter: blur(50px); pointer-events: none; z-index: 0; }
+    #pwa-banner { display: none; position: fixed; bottom: 70px; left: 50%; transform: translateX(-50%); z-index: 800; background: linear-gradient(135deg,#3b82f6,#6366f1); color: white; border-radius: 14px; padding: 12px 18px; font-size: 13px; box-shadow: 0 8px 24px rgba(59,130,246,0.4); max-width: 340px; width: calc(100% - 24px); display: none; align-items: center; gap: 10px; }
+    #pwa-banner button { border: none; cursor: pointer; border-radius: 8px; padding: 6px 14px; font-size: 12px; font-weight: 600; }
+    #pwa-install-btn { background: white; color: #3b82f6; }
+    #pwa-dismiss-btn { background: rgba(255,255,255,0.2); color: white; }
+    .modal-overlay { position: fixed; inset: 0; z-index: 500; background: rgba(0,0,0,0.6); backdrop-filter: blur(7px); display: flex; align-items: flex-end; justify-content: center; }
+    .modal-box { width: 100%; max-width: 520px; max-height: 88vh; overflow-y: auto; border-radius: 15px 15px 0 0; padding: 17px 15px 34px; animation: su 0.27s ease; }
+    .receipt-overlay { position: fixed; inset: 0; z-index: 600; background: rgba(0,0,0,0.7); backdrop-filter: blur(8px); display: flex; align-items: center; justify-content: center; padding: 20px 12px; }
+    .receipt-box { width: 100%; max-width: 400px; max-height: 88vh; overflow-y: auto; border-radius: 16px; padding: 20px 18px; animation: fi 0.27s ease; }
+    .calc-overlay { position: fixed; inset: 0; z-index: 550; background: rgba(0,0,0,0.6); backdrop-filter: blur(8px); display: flex; align-items: flex-end; justify-content: center; }
+    .calc-box { width: 100%; max-width: 360px; border-radius: 18px 18px 0 0; padding: 16px 14px 28px; animation: su 0.27s ease; }
+    .drawer-overlay { position: fixed; inset: 0; z-index: 150; background: rgba(0,0,0,0.4); backdrop-filter: blur(4px); display: none; }
+    #drawer { position: fixed; top: 0; bottom: 0; z-index: 200; width: 255px; backdrop-filter: blur(30px); -webkit-backdrop-filter: blur(30px); display: flex; flex-direction: column; overflow-y: auto; transition: transform 0.28s cubic-bezier(0.4,0,0.2,1); }
+  </style>
+</head>
+<body>
 
-// ── Sound Engine ──────────────────────────────────────────────────────────────
-const playSound = (type) => {
+<!-- SPLASH -->
+<div id="splash">
+  <div style="text-align:center">
+    <div style="font-size:60px;margin-bottom:14px;filter:drop-shadow(0 0 20px rgba(59,130,246,0.5))">🛒</div>
+    <div style="font-family:'Noto Nastaliq Urdu',serif;font-size:30px;font-weight:700;color:#f1f5f9;text-shadow:0 0 30px rgba(99,102,241,0.4)">بابلو شاپ</div>
+    <div style="font-size:16px;color:#3b82f6;letter-spacing:4px;margin-top:5px">BABLO SHOP</div>
+    <div style="font-size:12px;color:#475569;margin-top:6px">by Muhammad Usman</div>
+    <div style="display:flex;gap:5px;justify-content:center;margin-top:20px" id="splash-dots"></div>
+  </div>
+</div>
+
+<!-- PWA Install Banner -->
+<div id="pwa-banner" style="display:none;position:fixed;bottom:70px;left:50%;transform:translateX(-50%);z-index:800;background:linear-gradient(135deg,#3b82f6,#6366f1);color:white;border-radius:14px;padding:12px 18px;font-size:13px;box-shadow:0 8px 24px rgba(59,130,246,0.4);max-width:340px;width:calc(100% - 24px);align-items:center;gap:10px;">
+  <span style="font-size:22px">📲</span>
+  <div style="flex:1">
+    <div style="font-weight:600;font-size:13px">Install Bablo Shop</div>
+    <div style="font-size:11px;opacity:0.85">Add to home screen for quick access</div>
+  </div>
+  <button id="pwa-install-btn" style="background:white;color:#3b82f6;border:none;cursor:pointer;border-radius:8px;padding:6px 14px;font-size:12px;font-weight:600;">Install</button>
+  <button id="pwa-dismiss-btn" style="background:rgba(255,255,255,0.2);color:white;border:none;cursor:pointer;border-radius:8px;padding:6px 10px;font-size:12px;">✕</button>
+</div>
+
+<!-- TOAST -->
+<div id="toast"></div>
+
+<!-- MAIN APP -->
+<div id="app" style="display:none">
+  <!-- BG orbs (dark mode only) -->
+  <div class="orb1" id="orb1"></div>
+  <div class="orb2" id="orb2"></div>
+
+  <!-- TOPBAR -->
+  <div id="topbar" style="display:flex;align-items:center;justify-content:space-between;padding:0 13px;height:54px;backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);position:sticky;top:0;z-index:100;">
+    <button class="hv hv2" id="btn-drawer" style="border-radius:9px;padding:5px 9px;cursor:pointer;font-size:13px;">☰</button>
+    <span id="topbar-title" style="font-weight:700;font-size:15px;"></span>
+    <div style="display:flex;gap:5px;">
+      <button class="hv hv2" id="btn-theme" style="border-radius:9px;padding:5px 8px;cursor:pointer;font-size:13px;" title="Toggle Theme"></button>
+      <button class="hv hv2" id="btn-lang" style="border-radius:9px;padding:5px 8px;cursor:pointer;font-size:11px;"></button>
+      <button class="hv hv2" id="btn-calc" style="border-radius:9px;padding:5px 8px;cursor:pointer;font-size:13px;">🧮</button>
+      <button class="hv hv2" id="btn-notif" style="border-radius:9px;padding:5px 8px;cursor:pointer;font-size:13px;position:relative;">🔔<span id="notif-badge" style="position:absolute;top:-3px;right:-3px;background:#ef4444;color:#fff;font-size:9px;border-radius:99px;min-width:14px;height:14px;display:none;align-items:center;justify-content:center;"></span></button>
+    </div>
+  </div>
+
+  <!-- DRAWER OVERLAY -->
+  <div class="drawer-overlay" id="drawer-overlay"></div>
+
+  <!-- DRAWER -->
+  <div id="drawer" style="border-radius:0 13px 13px 0;">
+    <div style="display:flex;align-items:center;gap:12px;padding:20px 16px 14px;" id="drawer-header">
+      <span style="font-size:28px">🛒</span>
+      <div>
+        <div id="drawer-shopname" style="font-family:'Noto Nastaliq Urdu',serif;font-size:15px;font-weight:700;"></div>
+        <div style="font-size:11px;color:#94a3b8;">Bablo Shop</div>
+      </div>
+    </div>
+    <div id="drawer-nav"></div>
+    <div style="margin-top:auto;padding:13px;font-size:10px;color:#475569;text-align:center;">v2.0 • Muhammad Usman 🇵🇰</div>
+  </div>
+
+  <!-- PAGE CONTENT -->
+  <div class="page-content pi" id="page-content"></div>
+
+  <!-- BOTTOM NAV -->
+  <div id="bottom-nav" style="position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:520px;height:60px;display:flex;align-items:center;justify-content:space-around;backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);z-index:100;border-top:1px solid;"></div>
+</div>
+
+<!-- MODALS CONTAINER -->
+<div id="modals"></div>
+
+<script>
+// ─── Sound Engine ────────────────────────────────────────────────────────────
+function playSound(type) {
   try {
     const ctx = new (window.AudioContext || window.webkitAudioContext)();
-    const g = ctx.createGain();
-    g.connect(ctx.destination);
-    const o = ctx.createOscillator();
-    o.connect(g);
+    const g = ctx.createGain(); g.connect(ctx.destination);
+    const o = ctx.createOscillator(); o.connect(g);
     if (type === "open") {
       g.gain.setValueAtTime(0, ctx.currentTime);
       g.gain.linearRampToValueAtTime(0.18, ctx.currentTime + 0.02);
@@ -15,18 +142,16 @@ const playSound = (type) => {
       o.frequency.setValueAtTime(880, ctx.currentTime);
       o.frequency.exponentialRampToValueAtTime(1320, ctx.currentTime + 0.12);
       o.frequency.exponentialRampToValueAtTime(1100, ctx.currentTime + 0.35);
-      o.type = "sine";
-      o.start(ctx.currentTime); o.stop(ctx.currentTime + 0.5);
+      o.type = "sine"; o.start(ctx.currentTime); o.stop(ctx.currentTime + 0.5);
     } else if (type === "tap") {
       g.gain.setValueAtTime(0.12, ctx.currentTime);
       g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.12);
       o.frequency.setValueAtTime(660, ctx.currentTime);
-      o.type = "sine";
-      o.start(ctx.currentTime); o.stop(ctx.currentTime + 0.12);
+      o.type = "sine"; o.start(ctx.currentTime); o.stop(ctx.currentTime + 0.12);
     } else if (type === "success") {
       [0, 0.1, 0.2].forEach((t, i) => {
         const o2 = ctx.createOscillator(); o2.connect(g);
-        o2.frequency.setValueAtTime([523, 659, 784][i], ctx.currentTime + t);
+        o2.frequency.setValueAtTime([523,659,784][i], ctx.currentTime + t);
         o2.type = "sine";
         g.gain.setValueAtTime(0.15, ctx.currentTime + t);
         g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + t + 0.18);
@@ -37,19 +162,30 @@ const playSound = (type) => {
       g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.18);
       o.frequency.setValueAtTime(330, ctx.currentTime);
       o.frequency.exponentialRampToValueAtTime(180, ctx.currentTime + 0.18);
-      o.type = "sawtooth";
-      o.start(ctx.currentTime); o.stop(ctx.currentTime + 0.18);
+      o.type = "sawtooth"; o.start(ctx.currentTime); o.stop(ctx.currentTime + 0.18);
     } else if (type === "calc") {
       g.gain.setValueAtTime(0.08, ctx.currentTime);
       g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.07);
       o.frequency.setValueAtTime(1100, ctx.currentTime);
-      o.type = "sine";
-      o.start(ctx.currentTime); o.stop(ctx.currentTime + 0.07);
+      o.type = "sine"; o.start(ctx.currentTime); o.stop(ctx.currentTime + 0.07);
     }
   } catch(e) {}
+}
+
+// ─── LocalStorage ────────────────────────────────────────────────────────────
+const LS = {
+  g: (k, d) => { try { const v = localStorage.getItem(k); return v ? JSON.parse(v) : d; } catch { return d; } },
+  s: (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch {} }
 };
 
-// ── Data ──────────────────────────────────────────────────────────────────────
+// ─── Helpers ─────────────────────────────────────────────────────────────────
+const fmt = (n, s="₨") => `${s}${Number(n||0).toLocaleString("en-PK")}`;
+const gn = (p, l) => l==="en" ? p.en : l==="roman" ? p.roman : p.ur;
+const dateStr = d => new Date(d).toLocaleDateString("en-PK",{day:"2-digit",month:"short",year:"numeric"});
+const timeStr = d => new Date(d).toLocaleTimeString("en-PK",{hour:"2-digit",minute:"2-digit"});
+const esc = s => String(s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+
+// ─── Data ─────────────────────────────────────────────────────────────────────
 const CATS = [
   {id:"all",ur:"سب",en:"All"},{id:"ghalla",ur:"غلہ",en:"Grains"},
   {id:"daal",ur:"دالیں",en:"Pulses"},{id:"drinks",ur:"مشروبات",en:"Drinks"},
@@ -57,7 +193,6 @@ const CATS = [
   {id:"masala",ur:"مصالحہ",en:"Spices"},{id:"tel",ur:"تیل",en:"Oil/Ghee"},
   {id:"aata",ur:"آٹا",en:"Flour"},{id:"other",ur:"دیگر",en:"Other"},
 ];
-
 const INIT_P = [
   {id:1,ur:"باسمتی چاول",en:"Basmati Rice",roman:"Basmati Chawal",cat:"ghalla",buy:220,sell:260,stock:50,unit:"kg",fav:false,emoji:"🌾",img:null},
   {id:2,ur:"سیلا چاول",en:"Sella Rice",roman:"Sella Chawal",cat:"ghalla",buy:170,sell:200,stock:40,unit:"kg",fav:false,emoji:"🌾",img:null},
@@ -86,67 +221,51 @@ const INIT_P = [
   {id:25,ur:"چپس",en:"Lays Chips",roman:"Chips",cat:"other",buy:55,sell:70,stock:50,unit:"pkt",fav:true,emoji:"🥔",img:null},
 ];
 
-const LS = {
-  g:(k,d)=>{ try{const v=localStorage.getItem(k);return v?JSON.parse(v):d;}catch{return d;} },
-  s:(k,v)=>{ try{localStorage.setItem(k,JSON.stringify(v));}catch{} }
+// ─── App State ─────────────────────────────────────────────────────────────
+let state = {
+  theme: LS.g("bth","dark"),
+  lang: LS.g("bl","ur"),
+  page: "home",
+  products: LS.g("bp2", INIT_P),
+  sales: LS.g("bs2", []),
+  bills: LS.g("bb2", []),
+  thresh: LS.g("bt", 5),
+  cur: LS.g("bc","₨"),
+  shopName: LS.g("bn","بابلو شاپ"),
+  drawer: false,
+  modal: null,
+  editP: null,
+  form: {ur:"",en:"",roman:"",cat:"ghalla",buy:"",sell:"",stock:"",unit:"kg",emoji:"📦",img:null},
+  catF: "all",
+  srch: "",
+  billItems: [],
+  billSrch: "",
+  cname: "",
+  paid: "",
+  rTab: "daily",
+  sPid: "", sQty: 1, sPrice: "",
+  showCalc: false,
+  calcVal: "0", calcPrev: "", calcOp: null, calcNew: true,
+  showReceipt: null,
 };
-const fmt=(n,s="₨")=>`${s}${Number(n||0).toLocaleString("en-PK")}`;
-const gn=(p,l)=>l==="en"?p.en:l==="roman"?p.roman:p.ur;
-const dateStr=(d)=>new Date(d).toLocaleDateString("en-PK",{day:"2-digit",month:"short",year:"numeric"});
-const timeStr=(d)=>new Date(d).toLocaleTimeString("en-PK",{hour:"2-digit",minute:"2-digit"});
 
-// ── MAIN ──────────────────────────────────────────────────────────────────────
-export default function BabloShop() {
-  const [theme, setTheme] = useState(()=>LS.g("bth","dark"));
-  const [lang, setLang] = useState(()=>LS.g("bl","ur"));
-  const [page, setPage] = useState("home");
-  const [products, setProducts] = useState(()=>LS.g("bp2",INIT_P));
-  const [sales, setSales] = useState(()=>LS.g("bs2",[]));
-  const [bills, setBills] = useState(()=>LS.g("bb2",[]));
-  const [thresh, setThresh] = useState(()=>LS.g("bt",5));
-  const [cur, setCur] = useState(()=>LS.g("bc","₨"));
-  const [shopName, setShopName] = useState(()=>LS.g("bn","بابلو شاپ"));
-  const [drawer, setDrawer] = useState(false);
-  const [modal, setModal] = useState(null);
-  const [editP, setEditP] = useState(null);
-  const [form, setForm] = useState({ur:"",en:"",roman:"",cat:"ghalla",buy:"",sell:"",stock:"",unit:"kg",emoji:"📦",img:null});
-  const [catF, setCatF] = useState("all");
-  const [srch, setSrch] = useState("");
-  const [billItems, setBillItems] = useState([]);
-  const [billSrch, setBillSrch] = useState("");
-  const [cname, setCname] = useState("");
-  const [paid, setPaid] = useState("");
-  const [rTab, setRTab] = useState("daily");
-  const [splash, setSplash] = useState(true);
-  const [toast, setToast] = useState(null);
-  const [sPid, setSPid] = useState(""); const [sQty, setSQty] = useState(1); const [sPrice, setSPrice] = useState("");
-  const [showCalc, setShowCalc] = useState(false);
-  const [calcVal, setCalcVal] = useState("0");
-  const [calcPrev, setCalcPrev] = useState("");
-  const [calcOp, setCalcOp] = useState(null);
-  const [calcNew, setCalcNew] = useState(true);
-  const [showReceipt, setShowReceipt] = useState(null);
-  const receiptRef = useRef(null);
-  const imgInputRef = useRef(null);
-  const formImgRef = useRef(null);
+// Save helpers
+function save() {
+  LS.s("bp2", state.products);
+  LS.s("bs2", state.sales);
+  LS.s("bb2", state.bills);
+  LS.s("bl", state.lang);
+  LS.s("bt", state.thresh);
+  LS.s("bc", state.cur);
+  LS.s("bn", state.shopName);
+  LS.s("bth", state.theme);
+}
 
-  useEffect(()=>{ LS.s("bp2",products); },[products]);
-  useEffect(()=>{ LS.s("bs2",sales); },[sales]);
-  useEffect(()=>{ LS.s("bb2",bills); },[bills]);
-  useEffect(()=>{ LS.s("bl",lang); },[lang]);
-  useEffect(()=>{ LS.s("bt",thresh); },[thresh]);
-  useEffect(()=>{ LS.s("bc",cur); },[cur]);
-  useEffect(()=>{ LS.s("bn",shopName); },[shopName]);
-  useEffect(()=>{ LS.s("bth",theme); },[theme]);
-  useEffect(()=>{ const t=setTimeout(()=>{ setSplash(false); playSound("open"); },2000); return()=>clearTimeout(t); },[]);
-
-  const showT=useCallback((msg,type="ok")=>{ setToast({msg,type}); setTimeout(()=>setToast(null),2500); },[]);
-
-  const isUr=lang==="ur"; const ff=isUr?"'Noto Nastaliq Urdu',serif":"'Inter',sans-serif";
-  const dir=isUr?"rtl":"ltr"; const isDark=theme==="dark";
-
-  // Theme colors
-  const T = {
+// ─── Theme ─────────────────────────────────────────────────────────────────
+function getT() {
+  const isDark = state.theme === "dark";
+  return {
+    isDark,
     bg: isDark?"linear-gradient(145deg,#060e1c 0%,#0a1628 50%,#060e1c 100%)":"linear-gradient(145deg,#f0f4ff 0%,#e8f0fe 50%,#f0f4ff 100%)",
     card: isDark?"rgba(255,255,255,0.07)":"rgba(255,255,255,0.75)",
     cardBorder: isDark?"rgba(255,255,255,0.12)":"rgba(200,210,240,0.6)",
@@ -166,694 +285,819 @@ export default function BabloShop() {
     lowBg: isDark?"rgba(245,158,11,0.08)":"rgba(245,158,11,0.1)",
     shadow: isDark?"none":"0 4px 24px rgba(59,130,246,0.1)",
   };
+}
 
-  const gl = { background:T.card, border:`1px solid ${T.cardBorder}`, backdropFilter:"blur(20px)", WebkitBackdropFilter:"blur(20px)", borderRadius:14, boxShadow:T.shadow };
-  const inp = { width:"100%", background:T.inp, border:`1px solid ${T.inpBorder}`, borderRadius:10, color:T.text, padding:"9px 12px", fontSize:13, outline:"none", boxSizing:"border-box", fontFamily:ff };
-  const sel = { ...inp, background:T.sel };
-  const lbl = { display:"block", fontSize:11, color:T.text2, marginBottom:4, fontFamily:ff };
-  const hdr = { fontSize:12, fontWeight:600, color:T.text2, margin:"15px 0 8px", paddingLeft:8, borderLeft:"3px solid #3b82f6", fontFamily:ff };
-  const priBtn = { background:"linear-gradient(135deg,#3b82f6,#6366f1)", border:"none", borderRadius:11, color:"white", padding:"11px", fontWeight:600, fontSize:13, cursor:"pointer", width:"100%", marginTop:8, fontFamily:ff };
-  const secBtn = { background:T.btnSec, border:`1px solid ${T.btnSecBorder}`, borderRadius:11, color:T.text, padding:"10px", fontWeight:500, fontSize:13, cursor:"pointer", width:"100%", marginTop:8, fontFamily:ff };
+// ─── Computed ─────────────────────────────────────────────────────────────
+function computed() {
+  const isUr = state.lang === "ur";
+  const ff = isUr ? "'Noto Nastaliq Urdu',serif" : "'Inter',sans-serif";
+  const dir = isUr ? "rtl" : "ltr";
+  const lowItems = state.products.filter(p => p.stock <= state.thresh);
+  const favItems = state.products.filter(p => p.fav);
+  const todayRev = state.sales.filter(s => new Date(s.date).toDateString() === new Date().toDateString()).reduce((a,s) => a+s.total, 0);
+  const billTotal = state.billItems.reduce((s,i) => s+i.sell*i.qty, 0);
+  const billBal = billTotal - (+state.paid||0);
+  const pages = {home:isUr?state.shopName:"Bablo Shop",prods:isUr?"مصنوعات":"Products",bill:isUr?"بل بنائیں":"Billing",rep:isUr?"رپورٹ":"Reports",set:isUr?"ترتیبات":"Settings",stk:isUr?"اسٹاک":"Stock",sales2:isUr?"فروخت":"Sales",favs:isUr?"پسندیدہ":"Favorites"};
+  return { isUr, ff, dir, lowItems, favItems, todayRev, billTotal, billBal, pages };
+}
 
-  const nav=(pg)=>{ playSound("tap"); setPage(pg); setDrawer(false); };
+// ─── Toast ─────────────────────────────────────────────────────────────────
+let toastTimer = null;
+function showToast(msg, type="ok") {
+  const T = getT();
+  const el = document.getElementById("toast");
+  el.textContent = msg;
+  el.style.display = "block";
+  el.style.background = T.isDark ? "rgba(8,16,32,0.96)" : "rgba(255,255,255,0.97)";
+  el.style.border = `1px solid ${type==="ok"?"#10b981":type==="warn"?"#f59e0b":"#ef4444"}`;
+  el.style.color = T.text;
+  if (toastTimer) clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => { el.style.display = "none"; }, 2500);
+}
 
-  // Product ops
-  const openAdd=()=>{ setForm({ur:"",en:"",roman:"",cat:"ghalla",buy:"",sell:"",stock:"",unit:"kg",emoji:"📦",img:null}); setEditP(null); setModal("prod"); playSound("tap"); };
-  const openEdit=(p)=>{ setForm({...p}); setEditP(p); setModal("prod"); playSound("tap"); };
-  const saveProd=()=>{
-    if(!form.sell){ showT(isUr?"قیمت درج کریں":"Enter price","warn"); return; }
-    if(editP) setProducts(ps=>ps.map(p=>p.id===editP.id?{...p,...form,buy:+form.buy||0,sell:+form.sell||0,stock:+form.stock||0}:p));
-    else setProducts(ps=>[...ps,{id:Date.now(),...form,buy:+form.buy||0,sell:+form.sell||0,stock:+form.stock||0,fav:false}]);
-    playSound("success"); showT(isUr?"محفوظ ✓":"Saved ✓","ok"); setModal(null);
+// ─── Navigation ────────────────────────────────────────────────────────────
+function nav(pg) {
+  playSound("tap");
+  state.page = pg;
+  state.drawer = false;
+  render();
+}
+
+// ─── Product Ops ───────────────────────────────────────────────────────────
+function openAdd() {
+  state.form = {ur:"",en:"",roman:"",cat:"ghalla",buy:"",sell:"",stock:"",unit:"kg",emoji:"📦",img:null};
+  state.editP = null;
+  state.modal = "prod";
+  playSound("tap");
+  renderModals();
+}
+function openEdit(p) {
+  state.form = {...p};
+  state.editP = p;
+  state.modal = "prod";
+  playSound("tap");
+  renderModals();
+}
+function saveProd() {
+  const { isUr } = computed();
+  if (!state.form.sell) { showToast(isUr?"قیمت درج کریں":"Enter price","warn"); return; }
+  if (state.editP) {
+    state.products = state.products.map(p => p.id===state.editP.id ? {...p,...state.form,buy:+state.form.buy||0,sell:+state.form.sell||0,stock:+state.form.stock||0} : p);
+  } else {
+    state.products = [...state.products, {id:Date.now(),...state.form,buy:+state.form.buy||0,sell:+state.form.sell||0,stock:+state.form.stock||0,fav:false}];
+  }
+  save(); playSound("success"); showToast(isUr?"محفوظ ✓":"Saved ✓","ok"); state.modal = null;
+  render();
+}
+function delProd(id) {
+  const { isUr } = computed();
+  playSound("delete");
+  state.products = state.products.filter(p => p.id !== id);
+  save(); showToast(isUr?"حذف ہو گیا":"Deleted","ok");
+  render();
+}
+function togFav(id) {
+  playSound("tap");
+  state.products = state.products.map(p => p.id===id ? {...p, fav:!p.fav} : p);
+  save(); render();
+}
+function adjStk(id, d) {
+  playSound("tap");
+  state.products = state.products.map(p => p.id===id ? {...p, stock:Math.max(0,p.stock+d)} : p);
+  save(); render();
+}
+
+// ─── Bill Ops ──────────────────────────────────────────────────────────────
+function addBill(p) {
+  playSound("tap");
+  const e = state.billItems.find(i => i.id===p.id);
+  if (e) state.billItems = state.billItems.map(i => i.id===p.id ? {...i, qty:i.qty+1} : i);
+  else state.billItems = [...state.billItems, {...p, qty:1}];
+  showToast(`${gn(p,state.lang)} ✓`, "ok");
+  render();
+}
+function finBill() {
+  const { isUr, billTotal, billBal } = computed();
+  if (!state.billItems.length) { showToast(isUr?"اشیاء شامل کریں":"Add items first","warn"); return; }
+  const newBill = {id:Date.now(),billNo:`BS-${Date.now().toString().slice(-4)}`,customer:state.cname||"Walk-in",items:[...state.billItems],total:billTotal,paid:+state.paid||0,bal:billBal,date:new Date().toISOString()};
+  state.bills = [newBill, ...state.bills];
+  state.products = state.products.map(p => {
+    const bi = state.billItems.find(i => i.id===p.id);
+    return bi ? {...p, stock:Math.max(0,p.stock-bi.qty)} : p;
+  });
+  state.billItems.forEach(item => {
+    state.sales = [{id:Date.now()+Math.random(),name:item.ur,nameEn:item.en,qty:item.qty,total:item.sell*item.qty,profit:(item.sell-item.buy)*item.qty,date:new Date().toISOString()}, ...state.sales];
+  });
+  playSound("success");
+  state.billItems = []; state.cname = ""; state.paid = "";
+  showToast(isUr?"بل مکمل ✓":"Bill done ✓","ok");
+  save();
+  state.showReceipt = newBill;
+  render();
+}
+function doSale() {
+  const { isUr } = computed();
+  const p = state.products.find(x => x.id === +state.sPid);
+  if (!p) { showToast(isUr?"مصنوع منتخب کریں":"Select product","warn"); return; }
+  const pr = +state.sPrice || p.sell;
+  state.sales = [{id:Date.now(),name:p.ur,nameEn:p.en,qty:+state.sQty,total:pr*state.sQty,profit:(pr-p.buy)*state.sQty,date:new Date().toISOString()}, ...state.sales];
+  state.products = state.products.map(x => x.id===p.id ? {...x, stock:Math.max(0,x.stock-state.sQty)} : x);
+  playSound("success"); showToast(`${gn(p,state.lang)} ✓`,"ok");
+  state.sPid=""; state.sQty=1; state.sPrice="";
+  save(); render();
+}
+
+// ─── Receipt ───────────────────────────────────────────────────────────────
+function downloadReceipt(bill) {
+  const cur = state.cur, shopName = state.shopName;
+  const html = `<!DOCTYPE html><html><head><meta charset="UTF-8"><style>
+  body{font-family:'Segoe UI',sans-serif;max-width:350px;margin:0 auto;padding:20px;background:#fff;color:#1e293b;}
+  .header{text-align:center;margin-bottom:16px;border-bottom:2px solid #3b82f6;padding-bottom:12px;}
+  .shop{font-size:22px;font-weight:700;color:#1e293b;}.sub{font-size:12px;color:#64748b;}
+  .bill-no{background:#3b82f6;color:white;padding:4px 12px;border-radius:20px;font-size:11px;display:inline-block;margin-top:6px;}
+  .meta{display:flex;justify-content:space-between;font-size:12px;color:#64748b;margin:10px 0;padding:8px;background:#f8fafc;border-radius:8px;}
+  table{width:100%;border-collapse:collapse;margin:12px 0;}th{background:#3b82f6;color:white;padding:7px 10px;font-size:12px;text-align:left;}
+  td{padding:7px 10px;font-size:12px;border-bottom:1px solid #e2e8f0;}.total-row{background:#f0f9ff;font-weight:700;}
+  .balance{font-size:16px;font-weight:700;color:${bill.bal>0?"#ef4444":"#10b981"};text-align:center;padding:10px;border:2px solid ${bill.bal>0?"#ef4444":"#10b981"};border-radius:8px;margin-top:10px;}
+  .footer{text-align:center;font-size:11px;color:#94a3b8;margin-top:16px;border-top:1px dashed #e2e8f0;padding-top:10px;}
+  </style></head><body>
+  <div class="header"><div class="shop">🛒 ${shopName}</div><div class="sub">Bablo Shop — Professional Grocery</div><div class="bill-no">Bill# ${bill.billNo||"BS-001"}</div></div>
+  <div class="meta"><span>👤 ${bill.customer}</span><span>📅 ${dateStr(bill.date)}</span><span>🕐 ${timeStr(bill.date)}</span></div>
+  <table><thead><tr><th>Item</th><th>Qty</th><th>Price</th><th>Total</th></tr></thead><tbody>
+  ${bill.items.map(i=>`<tr><td>${i.ur}<br><small style="color:#94a3b8">${i.en}</small></td><td>${i.qty} ${i.unit}</td><td>${cur}${i.sell}</td><td>${cur}${i.sell*i.qty}</td></tr>`).join("")}
+  </tbody></table>
+  <table><tbody><tr class="total-row"><td colspan="3">کل رقم / Total</td><td>${fmt(bill.total,cur)}</td></tr><tr><td colspan="3">ادا کردہ / Paid</td><td>${fmt(bill.paid,cur)}</td></tr></tbody></table>
+  <div class="balance">${bill.bal>0?"باقی / Balance Due":"واپسی / Change"}: ${fmt(Math.abs(bill.bal),cur)}</div>
+  <div class="footer">شکریہ — Thank you for shopping!<br>Bablo Shop by Muhammad Usman 🇵🇰</div></body></html>`;
+  const w = window.open("","_blank");
+  w.document.write(html); w.document.close();
+  setTimeout(() => w.print(), 400);
+  playSound("success");
+}
+function shareReceipt(bill) {
+  const { isUr } = computed();
+  const text = `🛒 *${state.shopName}* — بابلو شاپ\n📋 Bill# ${bill.billNo||"BS-001"}\n👤 ${bill.customer}\n📅 ${dateStr(bill.date)}\n\n${bill.items.map(i=>`• ${i.ur} ×${i.qty} = ${fmt(i.sell*i.qty,state.cur)}`).join("\n")}\n\n💰 کل / Total: ${fmt(bill.total,state.cur)}\n✅ ادا / Paid: ${fmt(bill.paid,state.cur)}\n${bill.bal>0?`🔴 باقی: ${fmt(bill.bal,state.cur)}`:`🟢 واپسی: ${fmt(Math.abs(bill.bal),state.cur)}`}\n\nشکریہ! Thank you 🙏`;
+  if (navigator.share) navigator.share({title:"Bablo Shop Receipt",text});
+  else navigator.clipboard.writeText(text).then(() => showToast(isUr?"کاپی ہو گیا":"Copied!","ok"));
+  playSound("success");
+}
+
+// ─── Calculator ────────────────────────────────────────────────────────────
+function calcPress(btn) {
+  playSound("calc");
+  if (btn==="C") { state.calcVal="0"; state.calcPrev=""; state.calcOp=null; state.calcNew=true; renderCalc(); return; }
+  if (btn==="±") { state.calcVal=(+state.calcVal*-1).toString(); renderCalc(); return; }
+  if (btn==="%") { state.calcVal=(+state.calcVal/100).toString(); renderCalc(); return; }
+  if (["+","-","×","÷"].includes(btn)) { state.calcPrev=state.calcVal; state.calcOp=btn; state.calcNew=true; renderCalc(); return; }
+  if (btn==="=") {
+    if (!state.calcOp) return;
+    const a=+state.calcPrev, b=+state.calcVal; let r=0;
+    if(state.calcOp==="+") r=a+b; if(state.calcOp==="-") r=a-b;
+    if(state.calcOp==="×") r=a*b; if(state.calcOp==="÷") r=b!==0?a/b:0;
+    state.calcVal=parseFloat(r.toFixed(6)).toString();
+    state.calcOp=null; state.calcPrev=""; state.calcNew=true; playSound("success"); renderCalc(); return;
+  }
+  if (btn===".") { if(!state.calcVal.includes(".")) state.calcVal+="."; renderCalc(); return; }
+  if (state.calcNew) { state.calcVal=btn; state.calcNew=false; }
+  else state.calcVal = state.calcVal==="0" ? btn : state.calcVal+btn;
+  renderCalc();
+}
+function renderCalc() {
+  const el = document.getElementById("calc-display");
+  if (el) {
+    document.getElementById("calc-prev").textContent = state.calcPrev + (state.calcOp?` ${state.calcOp}`:"");
+    document.getElementById("calc-val").textContent = state.calcVal;
+  }
+}
+
+// ─── Image Upload ──────────────────────────────────────────────────────────
+function handleImgUpload(file) {
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    state.form.img = e.target.result;
+    const prev = document.getElementById("form-img-preview");
+    if (prev) {
+      prev.innerHTML = `<img src="${e.target.result}" style="width:100%;height:100%;object-fit:cover"/>`;
+    }
+    const rmBtn = document.getElementById("form-img-remove");
+    if (rmBtn) rmBtn.style.display = "block";
   };
-  const delProd=(id)=>{ playSound("delete"); setProducts(ps=>ps.filter(p=>p.id!==id)); showT(isUr?"حذف ہو گیا":"Deleted","ok"); };
-  const togFav=(id)=>{ playSound("tap"); setProducts(ps=>ps.map(p=>p.id===id?{...p,fav:!p.fav}:p)); };
-  const adjStk=(id,d)=>{ playSound("tap"); setProducts(ps=>ps.map(p=>p.id===id?{...p,stock:Math.max(0,p.stock+d)}:p)); };
+  reader.readAsDataURL(file);
+}
 
-  // Image upload
-  const handleImgUpload=(file,isForm)=>{
-    if(!file) return;
-    const reader=new FileReader();
-    reader.onload=(e)=>{
-      if(isForm) setForm(v=>({...v,img:e.target.result}));
-    };
-    reader.readAsDataURL(file);
-  };
-
-  // Bill
-  const addBill=(p)=>{
-    playSound("tap");
-    setBillItems(items=>{ const e=items.find(i=>i.id===p.id); return e?items.map(i=>i.id===p.id?{...i,qty:i.qty+1}:i):[...items,{...p,qty:1}]; });
-    showT(`${gn(p,lang)} ✓`,"ok");
-  };
-  const billTotal=billItems.reduce((s,i)=>s+i.sell*i.qty,0);
-  const billBal=billTotal-(+paid||0);
-  const finBill=()=>{
-    if(!billItems.length){ showT(isUr?"اشیاء شامل کریں":"Add items first","warn"); return; }
-    const newBill={id:Date.now(),billNo:`BS-${Date.now().toString().slice(-4)}`,customer:cname||"Walk-in",items:[...billItems],total:billTotal,paid:+paid||0,bal:billBal,date:new Date().toISOString()};
-    setBills(bs=>[newBill,...bs]);
-    setProducts(ps=>ps.map(p=>{ const bi=billItems.find(i=>i.id===p.id); return bi?{...p,stock:Math.max(0,p.stock-bi.qty)}:p; }));
-    billItems.forEach(item=>setSales(ss=>[{id:Date.now()+Math.random(),name:item.ur,nameEn:item.en,qty:item.qty,total:item.sell*item.qty,profit:(item.sell-item.buy)*item.qty,date:new Date().toISOString()},...ss]));
-    playSound("success");
-    setBillItems([]); setCname(""); setPaid("");
-    showT(isUr?"بل مکمل ✓":"Bill done ✓","ok");
-    setShowReceipt(newBill);
-  };
-
-  // Sale record
-  const doSale=()=>{
-    const p=products.find(x=>x.id===+sPid);
-    if(!p){ showT(isUr?"مصنوع منتخب کریں":"Select product","warn"); return; }
-    const pr=+sPrice||p.sell;
-    setSales(ss=>[{id:Date.now(),name:p.ur,nameEn:p.en,qty:+sQty,total:pr*sQty,profit:(pr-p.buy)*sQty,date:new Date().toISOString()},...ss]);
-    setProducts(ps=>ps.map(x=>x.id===p.id?{...x,stock:Math.max(0,x.stock-sQty)}:x));
-    playSound("success"); showT(`${gn(p,lang)} ✓`,"ok"); setSPid(""); setSQty(1); setSPrice("");
-  };
-
-  // Reports
-  const rSales=sales.filter(s=>{ const d=new Date(s.date),now=new Date();
-    if(rTab==="daily") return d.toDateString()===now.toDateString();
-    if(rTab==="weekly") return(now-d)/86400000<=7;
+// ─── Reports ───────────────────────────────────────────────────────────────
+function getRSales() {
+  return state.sales.filter(s => {
+    const d=new Date(s.date), now=new Date();
+    if(state.rTab==="daily") return d.toDateString()===now.toDateString();
+    if(state.rTab==="weekly") return (now-d)/86400000<=7;
     return d.getMonth()===now.getMonth()&&d.getFullYear()===now.getFullYear();
   });
-  const rRev=rSales.reduce((s,x)=>s+x.total,0), rProfit=rSales.reduce((s,x)=>s+(x.profit||0),0);
+}
+function getChartD() {
+  const n=state.rTab==="monthly"?10:7; const map={};
+  for(let i=n-1;i>=0;i--){ const d=new Date(); d.setDate(d.getDate()-i);
+    const k=state.rTab==="monthly"?d.getDate():["Su","Mo","Tu","We","Th","Fr","Sa"][d.getDay()]; map[k]=0; }
+  state.sales.forEach(s=>{ const d=new Date(s.date); if((new Date()-d)/86400000>n) return;
+    const k=state.rTab==="monthly"?d.getDate():["Su","Mo","Tu","We","Th","Fr","Sa"][d.getDay()];
+    if(k in map) map[k]+=s.total; });
+  return Object.entries(map);
+}
 
-  const chartD=(()=>{
-    const n=rTab==="monthly"?10:7; const map={};
-    for(let i=n-1;i>=0;i--){ const d=new Date(); d.setDate(d.getDate()-i);
-      const k=rTab==="monthly"?d.getDate():["Su","Mo","Tu","We","Th","Fr","Sa"][d.getDay()]; map[k]=0; }
-    sales.forEach(s=>{ const d=new Date(s.date); if((new Date()-d)/86400000>n) return;
-      const k=rTab==="monthly"?d.getDate():["Su","Mo","Tu","We","Th","Fr","Sa"][d.getDay()];
-      if(k in map) map[k]+=s.total; });
-    return Object.entries(map);
-  })();
-  const cMax=Math.max(...chartD.map(x=>x[1]),1);
+// ─── HTML Builders ─────────────────────────────────────────────────────────
+function imgThumb(p, size=36) {
+  if (p.img) return `<img src="${p.img}" style="width:100%;height:100%;object-fit:cover" alt=""/>`;
+  return `<span style="font-size:${size===36?18:size===60?26:30}px">${esc(p.emoji||"📦")}</span>`;
+}
+function thumbWrap(p, size=36, extra="") {
+  const T=getT();
+  return `<div style="width:${size}px;height:${size}px;border-radius:${size>40?10:8}px;overflow:hidden;flex-shrink:0;background:${T.isDark?"rgba(255,255,255,0.08)":"#f1f5f9"};display:flex;align-items:center;justify-content:center;${extra}">${imgThumb(p,size)}</div>`;
+}
 
-  const fprod=products.filter(p=>{ const mc=catF==="all"||p.cat===catF; const q=srch.toLowerCase(); const ms=!q||p.ur.includes(q)||p.en.toLowerCase().includes(q)||p.roman.toLowerCase().includes(q); return mc&&ms; });
-  const bprod=products.filter(p=>{ const q=billSrch.toLowerCase(); return !q||p.ur.includes(q)||p.en.toLowerCase().includes(q)||p.roman.toLowerCase().includes(q); });
+function renderPCard(p) {
+  const T=getT();
+  const { ff, isUr } = computed();
+  const name = gn(p, state.lang);
+  const low = p.stock<=state.thresh, warn = p.stock<=state.thresh*2&&!low;
+  return `<div class="pcrd hv" style="background:${T.card};border:1px solid ${T.cardBorder};box-shadow:${T.shadow};" data-pid="${p.id}">
+    <div style="position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,#3b82f6,#6366f1);border-radius:14px 14px 0 0;"></div>
+    <div style="width:100%;height:72px;border-radius:9px;overflow:hidden;margin-bottom:8px;background:${T.isDark?"rgba(255,255,255,0.06)":"rgba(59,130,246,0.06)"};display:flex;align-items:center;justify-content:center;position:relative;">
+      ${imgThumb(p,30)}
+      <button onclick="togFav(${p.id})" style="position:absolute;top:4px;right:4px;background:rgba(0,0,0,0.25);border:none;cursor:pointer;font-size:14px;padding:3px;border-radius:99px;">${p.fav?"❤️":"🤍"}</button>
+    </div>
+    <div style="font-family:${ff};font-size:13px;font-weight:600;margin-bottom:2px;line-height:1.35;color:${T.text};">${esc(name)}</div>
+    <div style="font-size:10px;color:${T.text2};margin-bottom:5px;">${esc(p.en)}</div>
+    <div style="font-size:14px;font-weight:700;color:#10b981;margin-bottom:2px;">${state.cur}${p.sell}</div>
+    <div style="font-size:10px;color:${low?"#ef4444":warn?"#f59e0b":T.text3};margin-bottom:8px;">${low?"⚠️ ":warn?"⚡ ":""}${p.stock} ${p.unit}</div>
+    <div style="display:flex;gap:5px;">
+      <button onclick="addBillById(${p.id})" style="flex:2;padding:6px 2px;border-radius:7px;background:rgba(16,185,129,0.12);border:1px solid rgba(16,185,129,0.22);color:#10b981;font-size:10px;cursor:pointer;font-family:${ff};">+${isUr?"بل":"Bill"}</button>
+      <button onclick="openEditById(${p.id})" style="flex:1;padding:6px;border-radius:7px;background:rgba(59,130,246,0.1);border:1px solid rgba(59,130,246,0.2);color:#3b82f6;font-size:11px;cursor:pointer;">✏️</button>
+      <button onclick="delProd(${p.id})" style="flex:1;padding:6px;border-radius:7px;background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.18);color:#ef4444;font-size:11px;cursor:pointer;">🗑️</button>
+    </div>
+  </div>`;
+}
 
-  const lowItems=products.filter(p=>p.stock<=thresh);
-  const favItems=products.filter(p=>p.fav);
-  const todayRev=sales.filter(s=>new Date(s.date).toDateString()===new Date().toDateString()).reduce((a,s)=>a+s.total,0);
+function openEditById(id) { openEdit(state.products.find(p=>p.id===id)); }
+function addBillById(id) { addBill(state.products.find(p=>p.id===id)); }
 
-  const pages={home:isUr?shopName:"Bablo Shop",prods:isUr?"مصنوعات":"Products",bill:isUr?"بل بنائیں":"Billing",rep:isUr?"رپورٹ":"Reports",set:isUr?"ترتیبات":"Settings",stk:isUr?"اسٹاک":"Stock",sales2:isUr?"فروخت":"Sales",favs:isUr?"پسندیدہ":"Favorites"};
+// ─── Page Renderers ────────────────────────────────────────────────────────
+function renderHome() {
+  const T=getT(); const { isUr, ff, lowItems, favItems, todayRev } = computed();
+  const fprod = state.srch ? state.products.filter(p => p.ur.includes(state.srch)||p.en.toLowerCase().includes(state.srch.toLowerCase())||p.roman.toLowerCase().includes(state.srch.toLowerCase())).slice(0,4) : [];
+  return `
+  <div style="background:${T.card};border:1px solid ${T.cardBorder};backdrop-filter:blur(20px);border-radius:14px;display:flex;align-items:center;gap:8px;padding:9px 13px;margin-bottom:13px;box-shadow:${T.shadow};">
+    <span style="opacity:0.5;font-size:13px;">🔍</span>
+    <input id="home-srch" value="${esc(state.srch)}" placeholder="${isUr?"تلاش کریں...":"Search products..."}" style="flex:1;background:none;border:none;outline:none;color:${T.text};font-size:13px;font-family:${ff};" dir="auto" oninput="state.srch=this.value;renderPage()"/>
+  </div>
+  ${state.srch && fprod.length > 0 ? `<div style="margin-bottom:12px;">${fprod.map(p=>`
+    <div style="background:${T.card};border:1px solid ${T.cardBorder};backdrop-filter:blur(20px);border-radius:11px;padding:9px 12px;margin-bottom:6px;display:flex;align-items:center;justify-content:space-between;gap:8px;box-shadow:${T.shadow};">
+      ${thumbWrap(p,36)} 
+      <div style="flex:1;"><div style="font-family:${ff};font-size:13px;font-weight:600;color:${T.text};">${esc(gn(p,state.lang))}</div><div style="font-size:10px;color:${T.text2};">${esc(p.en)} • ${fmt(p.sell,state.cur)}</div></div>
+      <button onclick="addBillById(${p.id});state.srch='';document.getElementById('home-srch').value='';renderPage();" style="background:rgba(16,185,129,0.15);border:1px solid rgba(16,185,129,0.25);border-radius:8px;color:#10b981;padding:5px 10px;font-size:11px;cursor:pointer;font-family:${ff};">${isUr?"+بل":"+Bill"}</button>
+    </div>`).join("")}</div>` : ""}
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-bottom:16px;">
+    ${[{icon:"💰",val:fmt(todayRev,state.cur),lbl:isUr?"آج کی آمدنی":"Today Revenue",c:"#10b981"},{icon:"📦",val:state.products.length,lbl:isUr?"کل اشیاء":"Total Items",c:"#3b82f6"},{icon:"⚠️",val:lowItems.length,lbl:isUr?"کم اسٹاک":"Low Stock",c:"#f59e0b"},{icon:"❤️",val:favItems.length,lbl:isUr?"پسندیدہ":"Favorites",c:"#ef4444"}].map(s=>`
+      <div style="background:${T.card};border:1px solid ${T.cardBorder};backdrop-filter:blur(20px);border-radius:13px;padding:13px 10px;text-align:center;box-shadow:${T.shadow};">
+        <div style="font-size:22px;margin-bottom:5px;">${s.icon}</div>
+        <div style="font-size:20px;font-weight:700;color:${s.c};">${s.val}</div>
+        <div style="font-size:11px;color:${T.text2};font-family:${ff};margin-top:3px;">${s.lbl}</div>
+      </div>`).join("")}
+  </div>
+  <div style="font-size:12px;font-weight:600;color:${T.text2};margin:15px 0 8px;padding-left:8px;border-left:3px solid #3b82f6;font-family:${ff};">${isUr?"فوری رسائی":"Quick Access"}</div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:4px;">
+    ${[{pg:"bill",icon:"🧾",ur:"نیا بل",en:"New Bill"},{pg:"prods",icon:"➕",ur:"مصنوع شامل",en:"Add Product"},{pg:"rep",icon:"📊",ur:"رپورٹ",en:"Reports"},{pg:"stk",icon:"📈",ur:"اسٹاک",en:"Stock"}].map(q=>`
+      <button class="hv hv2" onclick="nav('${q.pg}')" style="background:${T.card};border:1px solid ${T.cardBorder};backdrop-filter:blur(20px);border-radius:11px;padding:13px 8px;display:flex;flex-direction:column;align-items:center;gap:6px;cursor:pointer;color:${T.text};font-family:${ff};font-size:12px;box-shadow:${T.shadow};">
+        <span style="font-size:22px;">${q.icon}</span><span>${state.lang==="en"?q.en:q.ur}</span>
+      </button>`).join("")}
+  </div>
+  ${lowItems.length>0?`
+  <div style="font-size:12px;font-weight:600;color:${T.text2};margin:15px 0 8px;padding-left:8px;border-left:3px solid #3b82f6;font-family:${ff};">⚠️ ${isUr?"کم اسٹاک الرٹ":"Low Stock Alert"}</div>
+  ${lowItems.slice(0,4).map(p=>`
+    <div style="background:${T.lowBg};border:1px solid rgba(245,158,11,0.2);border-radius:10px;padding:9px 12px;display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+      <span style="font-family:${ff};font-size:13px;color:${T.text};">${esc(gn(p,state.lang))}</span>
+      <span style="color:#f59e0b;font-weight:700;font-size:12px;">${p.stock} ${p.unit}</span>
+    </div>`).join("")}`:""}
+  <div style="font-size:12px;font-weight:600;color:${T.text2};margin:15px 0 8px;padding-left:8px;border-left:3px solid #3b82f6;font-family:${ff};">${isUr?"حالیہ بل":"Recent Bills"}</div>
+  ${state.bills.slice(0,3).length===0?`<div style="text-align:center;padding:18px;color:${T.text3};font-size:12px;">📭 ${isUr?"کوئی بل نہیں":"No bills yet"}</div>`:
+  state.bills.slice(0,3).map(b=>`
+    <div style="background:${T.card};border:1px solid ${T.cardBorder};backdrop-filter:blur(20px);border-radius:10px;padding:9px 12px;margin-bottom:6px;display:flex;justify-content:space-between;align-items:center;cursor:pointer;box-shadow:${T.shadow};" onclick="state.showReceipt=${JSON.stringify(b).replace(/"/g,'&quot;')};renderModals();">
+      <div><div style="font-family:${ff};font-size:13px;font-weight:600;color:${T.text};">${esc(b.customer)}</div><div style="font-size:10px;color:${T.text2};">${esc(b.billNo)} • ${dateStr(b.date)}</div></div>
+      <div style="text-align:right;"><div style="color:#10b981;font-weight:700;font-size:13px;">${fmt(b.total,state.cur)}</div><div style="font-size:10px;color:${b.bal>0?"#ef4444":"#10b981"};">${b.bal>0?`باقی ${fmt(b.bal,state.cur)}`:"ادا ✓"}</div></div>
+    </div>`).join("")}`;
+}
+
+function renderProds() {
+  const T=getT(); const { isUr, ff } = computed();
+  const fprod = state.products.filter(p => {
+    const mc = state.catF==="all" || p.cat===state.catF;
+    const q = state.srch.toLowerCase();
+    const ms = !q || p.ur.includes(q) || p.en.toLowerCase().includes(q) || p.roman.toLowerCase().includes(q);
+    return mc && ms;
+  });
+  return `
+  <div style="display:flex;gap:7px;margin-bottom:9px;align-items:center;flex-wrap:wrap;">
+    <button onclick="openAdd()" style="background:linear-gradient(135deg,#3b82f6,#6366f1);border:none;border-radius:11px;color:white;padding:8px 13px;font-weight:600;font-size:12px;cursor:pointer;font-family:${ff};">+ ${isUr?"شامل کریں":"Add"}</button>
+    <div style="background:${T.card};border:1px solid ${T.cardBorder};backdrop-filter:blur(20px);display:flex;align-items:center;gap:6px;padding:7px 11px;flex:1;border-radius:9px;box-shadow:${T.shadow};">
+      <span style="opacity:0.4;font-size:12px;">🔍</span>
+      <input value="${esc(state.srch)}" placeholder="${isUr?"تلاش...":"Search..."}" style="flex:1;background:none;border:none;outline:none;color:${T.text};font-size:12px;font-family:${ff};" dir="auto" oninput="state.srch=this.value;renderPage()"/>
+    </div>
+  </div>
+  <div style="display:flex;gap:5px;overflow-x:auto;margin-bottom:11px;padding-bottom:3px;">
+    ${CATS.map(c=>`<button class="chip${state.catF===c.id?" on":""}" onclick="state.catF='${c.id}';renderPage();" style="background:${state.catF===c.id?"":"T.card"};border-color:${T.cardBorder};color:${state.catF===c.id?"#fff":T.text2};font-family:${ff};">${state.lang==="en"?c.en:c.ur}</button>`).join("")}
+  </div>
+  ${fprod.length===0?`<div style="text-align:center;padding:36px;color:${T.text3};"><div style="font-size:32px;margin-bottom:7px;">📦</div>${isUr?"کوئی اشیاء نہیں":"No items"}</div>`:
+  `<div style="display:grid;grid-template-columns:1fr 1fr;gap:9px;">${fprod.map(p=>renderPCard(p)).join("")}</div>`}`;
+}
+
+function renderSales() {
+  const T=getT(); const { isUr, ff } = computed();
+  const selP = state.products.find(p=>p.id===+state.sPid);
+  return `
+  <div style="font-size:12px;font-weight:600;color:${T.text2};margin:15px 0 8px;padding-left:8px;border-left:3px solid #3b82f6;font-family:${ff};">${isUr?"فروخت درج کریں":"Record Sale"}</div>
+  <div style="background:${T.card};border:1px solid ${T.cardBorder};backdrop-filter:blur(20px);border-radius:13px;padding:15px;margin-bottom:13px;box-shadow:${T.shadow};">
+    <div style="margin-bottom:9px;"><label style="display:block;font-size:11px;color:${T.text2};margin-bottom:4px;font-family:${ff};">${isUr?"مصنوع":"Product"}</label>
+      <select onchange="state.sPid=this.value;renderPage();" style="width:100%;background:${T.sel};border:1px solid ${T.inpBorder};border-radius:10px;color:${T.text};padding:9px 12px;font-size:13px;outline:none;box-sizing:border-box;font-family:${ff};">
+        <option value="">${isUr?"-- منتخب کریں --":"-- Select --"}</option>
+        ${state.products.map(p=>`<option value="${p.id}" ${state.sPid==p.id?"selected":""}>${esc(gn(p,state.lang))} — ${fmt(p.sell,state.cur)}</option>`).join("")}
+      </select>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:9px;">
+      <div><label style="display:block;font-size:11px;color:${T.text2};margin-bottom:4px;font-family:${ff};">${isUr?"مقدار":"Qty"}</label><input type="number" value="${state.sQty}" min="1" oninput="state.sQty=+this.value" style="width:100%;background:${T.inp};border:1px solid ${T.inpBorder};border-radius:10px;color:${T.text};padding:9px 12px;font-size:13px;outline:none;box-sizing:border-box;"/></div>
+      <div><label style="display:block;font-size:11px;color:${T.text2};margin-bottom:4px;font-family:${ff};">${isUr?"قیمت":"Price"} (${state.cur})</label><input type="number" value="${state.sPrice}" placeholder="${selP?selP.sell:0}" oninput="state.sPrice=this.value" style="width:100%;background:${T.inp};border:1px solid ${T.inpBorder};border-radius:10px;color:${T.text};padding:9px 12px;font-size:13px;outline:none;box-sizing:border-box;"/></div>
+    </div>
+    <button onclick="doSale()" style="background:linear-gradient(135deg,#3b82f6,#6366f1);border:none;border-radius:11px;color:white;padding:11px;font-weight:600;font-size:13px;cursor:pointer;width:100%;margin-top:8px;font-family:${ff};">✔ ${isUr?"فروخت درج کریں":"Record Sale"}</button>
+  </div>
+  <div style="font-size:12px;font-weight:600;color:${T.text2};margin:15px 0 8px;padding-left:8px;border-left:3px solid #3b82f6;font-family:${ff};">${isUr?"فروخت تاریخ":"Sales History"}</div>
+  ${state.sales.slice(0,20).length===0?`<div style="text-align:center;padding:22px;color:${T.text3};font-size:12px;">📭</div>`:
+  state.sales.slice(0,20).map(s=>`
+    <div style="background:${T.card};border:1px solid ${T.cardBorder};backdrop-filter:blur(20px);border-radius:10px;padding:9px 12px;margin-bottom:6px;display:flex;justify-content:space-between;align-items:center;box-shadow:${T.shadow};">
+      <div><div style="font-family:${ff};font-size:13px;color:${T.text};">${esc(state.lang==="en"?s.nameEn:s.name)}</div><div style="font-size:10px;color:${T.text2};">×${s.qty} • ${dateStr(s.date)}</div></div>
+      <div style="text-align:right;"><div style="color:#10b981;font-weight:700;font-size:13px;">${fmt(s.total,state.cur)}</div><div style="font-size:10px;color:#6366f1;">+${fmt(s.profit||0,state.cur)}</div></div>
+    </div>`).join("")}`;
+}
+
+function renderStock() {
+  const T=getT(); const { isUr, ff } = computed();
+  return `
+  <div style="font-size:12px;font-weight:600;color:${T.text2};margin:15px 0 8px;padding-left:8px;border-left:3px solid #3b82f6;font-family:${ff};">${isUr?"اسٹاک مینیجمنٹ":"Stock Management"}</div>
+  ${state.products.map(p=>{ const low=p.stock<=state.thresh,warn=p.stock<=state.thresh*2&&!low; return `
+    <div style="background:${T.card};border:1px solid ${T.cardBorder};backdrop-filter:blur(20px);border-radius:10px;padding:10px 12px;margin-bottom:6px;display:flex;align-items:center;gap:10px;box-shadow:${T.shadow};">
+      ${thumbWrap(p,36)}
+      <div style="flex:1;"><div style="font-family:${ff};font-size:13px;font-weight:600;color:${T.text};">${esc(gn(p,state.lang))}</div><div style="font-size:10px;color:${T.text2};">${esc(p.en)}</div></div>
+      <div style="display:flex;align-items:center;gap:5px;">
+        <button onclick="adjStk(${p.id},-1)" style="width:28px;height:28px;border-radius:7px;background:${T.card};border:1px solid ${T.cardBorder};color:${T.text};font-size:15px;cursor:pointer;">−</button>
+        <span style="min-width:30px;text-align:center;font-weight:700;font-size:14px;color:${low?"#ef4444":warn?"#f59e0b":"#10b981"};">${p.stock}</span>
+        <button onclick="adjStk(${p.id},1)" style="width:28px;height:28px;border-radius:7px;background:${T.card};border:1px solid ${T.cardBorder};color:${T.text};font-size:15px;cursor:pointer;">+</button>
+      </div>
+      ${low?"<span>⚠️</span>":""}
+    </div>`;}).join("")}`;
+}
+
+function renderReports() {
+  const T=getT(); const { isUr, ff } = computed();
+  const rSales=getRSales(), rRev=rSales.reduce((s,x)=>s+x.total,0), rProfit=rSales.reduce((s,x)=>s+(x.profit||0),0);
+  const chartD=getChartD(), cMax=Math.max(...chartD.map(x=>x[1]),1);
+  return `
+  <div style="display:flex;gap:6px;margin-bottom:13px;">
+    ${["daily","weekly","monthly"].map(t=>`
+      <button class="tab${state.rTab===t?" on":""}" onclick="state.rTab='${t}';renderPage();" style="background:${state.rTab===t?"linear-gradient(135deg,#3b82f6,#6366f1)":T.card};border-color:${state.rTab===t?"#3b82f6":T.cardBorder};color:${state.rTab===t?"#fff":T.text2};font-family:${ff};">
+        ${t==="daily"?(isUr?"روزانہ":"Daily"):t==="weekly"?(isUr?"ہفتہ وار":"Weekly"):(isUr?"ماہانہ":"Monthly")}
+      </button>`).join("")}
+  </div>
+  <div style="background:${T.card};border:1px solid ${T.cardBorder};backdrop-filter:blur(20px);border-radius:13px;padding:15px;margin-bottom:13px;box-shadow:${T.shadow};">
+    ${[{lbl:isUr?"کل آمدنی":"Revenue",val:fmt(rRev,state.cur),c:"#10b981"},{lbl:isUr?"منافع":"Profit",val:fmt(rProfit,state.cur),c:"#6366f1"},{lbl:isUr?"فروخت":"Sales",val:rSales.length,c:"#3b82f6"}].map((r,i,a)=>`
+      <div style="display:flex;justify-content:space-between;align-items:center;padding:9px 0;${i<a.length-1?`border-bottom:1px solid ${T.hdrLine}`:""}">
+        <span style="font-family:${ff};font-size:13px;color:${T.text2};">${r.lbl}</span>
+        <span style="font-weight:700;font-size:15px;color:${r.c};">${r.val}</span>
+      </div>`).join("")}
+  </div>
+  <div style="background:${T.card};border:1px solid ${T.cardBorder};backdrop-filter:blur(20px);border-radius:13px;padding:13px 10px;margin-bottom:13px;box-shadow:${T.shadow};">
+    <div style="font-size:11px;color:${T.text2};margin-bottom:9px;font-family:${ff};">${isUr?"آمدنی گراف":"Revenue"}</div>
+    <div style="display:flex;align-items:flex-end;gap:3px;height:90px;">
+      ${chartD.map(([l,v])=>`
+        <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;">
+          <div title="${fmt(v,state.cur)}" style="width:100%;background:${v>0?"linear-gradient(180deg,#3b82f6,#6366f1)":T.isDark?"rgba(255,255,255,0.08)":"rgba(99,102,241,0.1)"};border-radius:3px 3px 0 0;height:${Math.max(3,(v/cMax)*80)}px;min-height:3px;transition:height 0.4s;"></div>
+          <span style="font-size:8px;color:${T.text3};">${l}</span>
+        </div>`).join("")}
+    </div>
+  </div>
+  <div style="font-size:12px;font-weight:600;color:${T.text2};margin:15px 0 8px;padding-left:8px;border-left:3px solid #3b82f6;font-family:${ff};">${isUr?"حالیہ فروخت":"Recent"}</div>
+  ${rSales.slice(0,8).map(s=>`
+    <div style="background:${T.card};border:1px solid ${T.cardBorder};backdrop-filter:blur(20px);border-radius:9px;padding:8px 11px;margin-bottom:5px;display:flex;justify-content:space-between;box-shadow:${T.shadow};">
+      <div><div style="font-family:${ff};font-size:12px;color:${T.text};">${esc(state.lang==="en"?s.nameEn:s.name)}</div><div style="font-size:10px;color:${T.text2};">${dateStr(s.date)}</div></div>
+      <div style="text-align:right;"><div style="color:#10b981;font-weight:700;font-size:12px;">${fmt(s.total,state.cur)}</div><div style="font-size:10px;color:#6366f1;">+${fmt(s.profit||0,state.cur)}</div></div>
+    </div>`).join("")}`;
+}
+
+function renderBilling() {
+  const T=getT(); const { isUr, ff, billTotal, billBal } = computed();
+  const bprod = state.products.filter(p=>{ const q=state.billSrch.toLowerCase(); return !q||p.ur.includes(q)||p.en.toLowerCase().includes(q)||p.roman.toLowerCase().includes(q); });
+  return `
+  <div style="background:${T.card};border:1px solid ${T.cardBorder};backdrop-filter:blur(20px);border-radius:11px;padding:12px;margin-bottom:9px;box-shadow:${T.shadow};">
+    <label style="display:block;font-size:11px;color:${T.text2};margin-bottom:4px;font-family:${ff};">${isUr?"گاہک کا نام":"Customer Name"}</label>
+    <input value="${esc(state.cname)}" oninput="state.cname=this.value" style="width:100%;background:${T.inp};border:1px solid ${T.inpBorder};border-radius:10px;color:${T.text};padding:9px 12px;font-size:13px;outline:none;box-sizing:border-box;font-family:${ff};" placeholder="${isUr?"نام...":"Name..."}" dir="auto"/>
+  </div>
+  <div style="background:${T.card};border:1px solid ${T.cardBorder};backdrop-filter:blur(20px);display:flex;align-items:center;gap:6px;padding:8px 12px;border-radius:10px;margin-bottom:8px;box-shadow:${T.shadow};">
+    <span style="opacity:0.4;font-size:12px;">🔍</span>
+    <input value="${esc(state.billSrch)}" placeholder="${isUr?"تلاش کریں...":"Search..."}" style="flex:1;background:none;border:none;outline:none;color:${T.text};font-size:12px;font-family:${ff};" dir="auto" oninput="state.billSrch=this.value;renderPage()"/>
+  </div>
+  <div style="max-height:200px;overflow-y:auto;margin-bottom:10px;">
+    ${bprod.slice(0,15).map(p=>`
+      <div class="hv" onclick="addBillById(${p.id})" style="display:flex;align-items:center;gap:8px;padding:8px 12px;background:${T.card};border:1px solid ${T.cardBorder};border-radius:9px;margin-bottom:5px;cursor:pointer;">
+        ${thumbWrap(p,32)}
+        <div style="flex:1;"><div style="font-family:${ff};font-size:12px;color:${T.text};">${esc(gn(p,state.lang))}</div><div style="font-size:10px;color:${T.text2};">${esc(p.en)}</div></div>
+        <span style="color:#10b981;font-weight:700;font-size:13px;">${fmt(p.sell,state.cur)}</span>
+      </div>`).join("")}
+  </div>
+  ${state.billItems.length>0?`
+  <div style="background:${T.card};border:1px solid ${T.cardBorder};backdrop-filter:blur(20px);border-radius:13px;padding:13px;box-shadow:${T.shadow};">
+    <div style="font-size:12px;color:${T.text2};font-family:${ff};margin-bottom:8px;font-weight:600;">${isUr?"بل کی اشیاء":"Bill Items"} (${state.billItems.length})</div>
+    ${state.billItems.map(item=>`
+      <div style="display:flex;align-items:center;padding:7px 0;border-bottom:1px solid ${T.hdrLine};">
+        <div style="flex:1;font-family:${ff};font-size:12px;color:${T.text};">${esc(gn(item,state.lang))}</div>
+        <div style="display:flex;align-items:center;gap:4px;">
+          <button onclick="billQtyAdj(${item.id},-1)" style="width:24px;height:24px;border-radius:6px;background:${T.card};border:1px solid ${T.cardBorder};color:${T.text};cursor:pointer;font-size:14px;">−</button>
+          <span style="min-width:20px;text-align:center;font-size:12px;font-weight:600;color:${T.text};">${item.qty}</span>
+          <button onclick="billQtyAdj(${item.id},1)" style="width:24px;height:24px;border-radius:6px;background:${T.card};border:1px solid ${T.cardBorder};color:${T.text};cursor:pointer;font-size:14px;">+</button>
+        </div>
+        <span style="min-width:65px;text-align:right;color:#10b981;font-weight:600;font-size:12px;margin-left:6px;">${fmt(item.sell*item.qty,state.cur)}</span>
+        <button onclick="billRemove(${item.id})" style="background:none;border:none;color:#ef4444;cursor:pointer;font-size:15px;margin-left:5px;">✕</button>
+      </div>`).join("")}
+    <div style="display:flex;justify-content:space-between;padding-top:9px;border-top:1px solid ${T.hdrLine};margin-top:3px;font-family:${ff};font-size:13px;">
+      <span style="color:${T.text2};">${isUr?"کل:":"Total:"}</span><span style="font-weight:700;font-size:15px;color:${T.text};">${fmt(billTotal,state.cur)}</span>
+    </div>
+    <div style="margin-top:9px;"><label style="display:block;font-size:11px;color:${T.text2};margin-bottom:4px;font-family:${ff};">${isUr?"ادا کردہ رقم":"Paid"} (${state.cur})</label>
+      <input type="number" value="${state.paid}" oninput="state.paid=this.value;renderPage();" style="width:100%;background:${T.inp};border:1px solid ${T.inpBorder};border-radius:10px;color:${T.text};padding:9px 12px;font-size:13px;outline:none;box-sizing:border-box;" placeholder="0"/>
+    </div>
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-top:9px;padding:9px 0;font-family:${ff};font-size:13px;">
+      <span style="color:${T.text2};">${isUr?"باقی:":"Balance:"}</span>
+      <span style="font-weight:700;font-size:16px;color:${billBal>0?"#ef4444":"#10b981"};">${fmt(Math.abs(billBal),state.cur)} ${billBal>0?(isUr?"واجب":"Due"):(isUr?"واپسی":"Change")}</span>
+    </div>
+    <button onclick="finBill()" style="background:linear-gradient(135deg,#3b82f6,#6366f1);border:none;border-radius:11px;color:white;padding:11px;font-weight:600;font-size:13px;cursor:pointer;width:100%;margin-top:8px;font-family:${ff};">🧾 ${isUr?"بل مکمل کریں":"Finalize & Receipt"}</button>
+    <button onclick="state.billItems=[];state.cname='';state.paid='';renderPage();" style="background:${T.btnSec};border:1px solid ${T.btnSecBorder};border-radius:11px;color:${T.text};padding:10px;font-weight:500;font-size:13px;cursor:pointer;width:100%;margin-top:8px;font-family:${ff};">${isUr?"صاف کریں":"Clear"}</button>
+  </div>`:`<div style="text-align:center;padding:26px;color:${T.text3};font-size:12px;"><div style="font-size:30px;margin-bottom:7px;">🧾</div>${isUr?"اوپر سے مصنوع ٹیپ کریں":"Tap a product to add"}</div>`}
+  ${state.bills.length>0?`
+  <div style="font-size:12px;font-weight:600;color:${T.text2};margin:15px 0 8px;padding-left:8px;border-left:3px solid #3b82f6;font-family:${ff};">${isUr?"پچھلے بل":"Previous Bills"}</div>
+  ${state.bills.slice(0,5).map(b=>`
+    <div class="hv" onclick="showReceiptModal(${b.id})" style="background:${T.card};border:1px solid ${T.cardBorder};backdrop-filter:blur(20px);border-radius:9px;padding:9px 12px;margin-bottom:6px;display:flex;justify-content:space-between;align-items:center;cursor:pointer;box-shadow:${T.shadow};">
+      <div><div style="font-family:${ff};font-size:13px;font-weight:600;color:${T.text};">${esc(b.customer)}</div><div style="font-size:10px;color:${T.text2};">${esc(b.billNo)} • ${dateStr(b.date)}</div></div>
+      <div style="text-align:right;"><div style="color:#10b981;font-weight:700;">${fmt(b.total,state.cur)}</div><div style="font-size:10px;color:${b.bal>0?"#ef4444":"#10b981"};">${b.bal>0?`⏳ ${fmt(b.bal,state.cur)}`:"✅ ادا"}</div></div>
+    </div>`).join("")}`:""}`;
+}
+function billQtyAdj(id,d) {
+  state.billItems = state.billItems.map(x => x.id===id ? {...x,qty:Math.max(1,x.qty+d)} : x);
+  renderPage();
+}
+function billRemove(id) {
+  state.billItems = state.billItems.filter(x => x.id!==id);
+  renderPage();
+}
+function showReceiptModal(id) {
+  state.showReceipt = state.bills.find(b=>b.id===id);
+  renderModals();
+}
+
+function renderFavs() {
+  const T=getT(); const { isUr } = computed();
+  const favItems = state.products.filter(p=>p.fav);
+  return favItems.length===0?`<div style="text-align:center;padding:55px;color:${T.text3};"><div style="font-size:34px;margin-bottom:7px;">❤️</div>${isUr?"کوئی پسندیدہ نہیں":"No favorites yet"}</div>`:
+  `<div style="display:grid;grid-template-columns:1fr 1fr;gap:9px;">${favItems.map(p=>renderPCard(p)).join("")}</div>`;
+}
+
+function renderSettings() {
+  const T=getT(); const { isUr, ff } = computed();
+  return `
+  <div style="background:${T.card};border:1px solid ${T.cardBorder};backdrop-filter:blur(20px);border-radius:13px;padding:15px;margin-bottom:11px;box-shadow:${T.shadow};">
+    <div style="font-family:${ff};font-weight:600;margin-bottom:11px;font-size:14px;color:${T.text};">${isUr?"ایپ ترتیبات":"App Settings"}</div>
+    <div style="margin-bottom:10px;"><label style="display:block;font-size:11px;color:${T.text2};margin-bottom:4px;font-family:${ff};">${isUr?"دکان کا نام":"Shop Name"}</label>
+      <input value="${esc(state.shopName)}" oninput="state.shopName=this.value" style="width:100%;background:${T.inp};border:1px solid ${T.inpBorder};border-radius:10px;color:${T.text};padding:9px 12px;font-size:13px;outline:none;box-sizing:border-box;font-family:${ff};" dir="auto"/></div>
+    <div style="margin-bottom:10px;"><label style="display:block;font-size:11px;color:${T.text2};margin-bottom:4px;font-family:${ff};">${isUr?"کرنسی":"Currency"}</label>
+      <input value="${esc(state.cur)}" oninput="state.cur=this.value" style="width:100%;background:${T.inp};border:1px solid ${T.inpBorder};border-radius:10px;color:${T.text};padding:9px 12px;font-size:13px;outline:none;box-sizing:border-box;font-family:${ff};" dir="auto"/></div>
+    <div style="margin-bottom:10px;"><label style="display:block;font-size:11px;color:${T.text2};margin-bottom:4px;font-family:${ff};">${isUr?"کم اسٹاک حد":"Low Stock Alert"}</label>
+      <input type="number" value="${state.thresh}" oninput="state.thresh=+this.value" style="width:100%;background:${T.inp};border:1px solid ${T.inpBorder};border-radius:10px;color:${T.text};padding:9px 12px;font-size:13px;outline:none;box-sizing:border-box;" dir="auto"/></div>
+    <div style="margin-bottom:10px;"><label style="display:block;font-size:11px;color:${T.text2};margin-bottom:4px;font-family:${ff};">${isUr?"زبان":"Language"}</label>
+      <div style="display:flex;gap:6px;">
+        ${[["ur","اردو"],["en","English"],["roman","Roman"]].map(([c,l])=>`
+          <button onclick="state.lang='${c}';save();render();" style="flex:1;padding:8px;border-radius:9px;background:${state.lang===c?"linear-gradient(135deg,#3b82f6,#6366f1)":T.card};border:${state.lang===c?"1px solid #3b82f6":`1px solid ${T.cardBorder}`};color:${state.lang===c?"white":T.text2};cursor:pointer;font-size:11px;">${l}</button>`).join("")}
+      </div>
+    </div>
+    <div style="margin-bottom:10px;"><label style="display:block;font-size:11px;color:${T.text2};margin-bottom:4px;font-family:${ff};">${isUr?"تھیم":"Theme"}</label>
+      <div style="display:flex;gap:6px;">
+        ${[["dark","🌙 Dark"],["white","☀️ White"]].map(([t,l])=>`
+          <button onclick="state.theme='${t}';save();render();" style="flex:1;padding:9px;border-radius:9px;background:${state.theme===t?"linear-gradient(135deg,#3b82f6,#6366f1)":T.card};border:${state.theme===t?"1px solid #3b82f6":`1px solid ${T.cardBorder}`};color:${state.theme===t?"white":T.text2};cursor:pointer;font-size:12px;">${l}</button>`).join("")}
+      </div>
+    </div>
+    <button onclick="save();playSound('success');showToast('${isUr?"محفوظ ✓":"Saved ✓"}','ok');" style="background:linear-gradient(135deg,#3b82f6,#6366f1);border:none;border-radius:11px;color:white;padding:11px;font-weight:600;font-size:13px;cursor:pointer;width:100%;margin-top:8px;font-family:${ff};">${isUr?"محفوظ کریں":"Save Settings"}</button>
+  </div>
+  <div style="background:${T.card};border:1px solid ${T.cardBorder};backdrop-filter:blur(20px);border-radius:13px;padding:15px;margin-bottom:11px;box-shadow:${T.shadow};">
+    <div style="font-family:${ff};font-weight:600;margin-bottom:11px;font-size:14px;color:${T.text};">${isUr?"ڈیٹا":"Data"}</div>
+    <button onclick="exportData()" style="background:${T.btnSec};border:1px solid ${T.btnSecBorder};border-radius:11px;color:${T.text};padding:10px;font-weight:500;font-size:13px;cursor:pointer;width:100%;margin-top:8px;font-family:${ff};">${isUr?"💾 ڈیٹا برآمد کریں":"💾 Export Data"}</button>
+    <button onclick="resetData()" style="background:rgba(239,68,68,0.06);border:1px solid rgba(239,68,68,0.3);border-radius:11px;color:#ef4444;padding:10px;font-weight:500;font-size:13px;cursor:pointer;width:100%;margin-top:8px;font-family:${ff};">${isUr?"🗑️ تمام ڈیٹا ری سیٹ":"🗑️ Reset All Data"}</button>
+  </div>
+  <div style="background:${T.card};border:1px solid ${T.cardBorder};backdrop-filter:blur(20px);border-radius:13px;padding:15px;text-align:center;box-shadow:${T.shadow};">
+    <div style="font-size:40px;margin-bottom:7px;">🛒</div>
+    <div style="font-weight:700;font-size:16px;color:${T.text};">Bablo Shop</div>
+    <div style="font-size:12px;color:${T.text2};margin-top:3px;">Professional Grocery Management</div>
+    <div style="font-size:12px;color:${T.text2};margin-top:3px;">by <strong style="color:#3b82f6;">Muhammad Usman</strong></div>
+    <div style="font-size:11px;color:${T.text3};margin-top:3px;">v2.0 • Pakistan 🇵🇰</div>
+  </div>`;
+}
+function exportData() {
+  const { isUr } = computed();
+  const d = {products:state.products,sales:state.sales,bills:state.bills};
+  const b = new Blob([JSON.stringify(d,null,2)],{type:"application/json"});
+  const u = URL.createObjectURL(b);
+  const a = document.createElement("a"); a.href=u; a.download="bablo-shop-data.json"; a.click();
+  playSound("success"); showToast(isUr?"برآمد ✓":"Exported ✓","ok");
+}
+function resetData() {
+  const { isUr } = computed();
+  if (window.confirm(isUr?"تمام ڈیٹا صاف کریں؟":"Reset all data?")) {
+    state.products=INIT_P; state.sales=[]; state.bills=[]; save(); playSound("delete"); showToast(isUr?"ری سیٹ ✓":"Reset ✓","ok"); render();
+  }
+}
+
+// ─── Modals ─────────────────────────────────────────────────────────────────
+function renderModals() {
+  const container = document.getElementById("modals");
+  const T=getT(); const { isUr, ff } = computed();
+  let html = "";
+
+  // Product Modal
+  if (state.modal==="prod") {
+    html += `<div class="modal-overlay" onclick="state.modal=null;renderModals();">
+      <div class="modal-box" onclick="event.stopPropagation()" style="background:${T.card};border:1px solid ${T.cardBorder};backdrop-filter:blur(20px);">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:13px;">
+          <span style="font-family:${ff};font-weight:600;font-size:14px;color:${T.text};">${state.editP?(isUr?"ترمیم کریں":"Edit Product"):(isUr?"مصنوع شامل کریں":"Add Product")}</span>
+          <button onclick="state.modal=null;renderModals();" style="background:${T.card};border:1px solid ${T.cardBorder};border-radius:7px;width:27px;height:27px;color:${T.text};cursor:pointer;font-size:13px;">✕</button>
+        </div>
+        <div style="margin-bottom:11px;">
+          <label style="display:block;font-size:11px;color:${T.text2};margin-bottom:4px;font-family:${ff};">${isUr?"تصویر":"Product Image"}</label>
+          <div style="display:flex;gap:8px;align-items:center;">
+            <div id="form-img-preview" style="width:60px;height:60px;border-radius:10px;overflow:hidden;background:${T.isDark?"rgba(255,255,255,0.08)":"#f1f5f9"};display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+              ${state.form.img?`<img src="${state.form.img}" style="width:100%;height:100%;object-fit:cover"/>`:`<span style="font-size:26px;">${esc(state.form.emoji||"📦")}</span>`}
+            </div>
+            <div style="flex:1;">
+              <input id="form-img-input" type="file" accept="image/*" style="display:none;" onchange="handleImgUpload(this.files[0])"/>
+              <button onclick="document.getElementById('form-img-input').click()" class="img-upload-btn" style="border-color:${T.cardBorder};color:${T.text2};background:${T.inp};">📷 ${isUr?"تصویر اپلوڈ کریں":"Upload Image"}</button>
+              <button id="form-img-remove" onclick="state.form.img=null;renderModals();" style="display:${state.form.img?"block":"none"};margin-top:5px;width:100%;padding:5px;border-radius:7px;background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.2);color:#ef4444;font-size:11px;cursor:pointer;">🗑️ ${isUr?"تصویر ہٹائیں":"Remove Image"}</button>
+            </div>
+          </div>
+        </div>
+        <div style="margin-bottom:9px;">
+          <label style="display:block;font-size:11px;color:${T.text2};margin-bottom:4px;font-family:${ff};">${isUr?"ایموجی":"Emoji"}</label>
+          <input value="${esc(state.form.emoji||"📦")}" oninput="state.form.emoji=this.value" style="width:70px;background:${T.inp};border:1px solid ${T.inpBorder};border-radius:10px;color:${T.text};padding:9px 12px;font-size:13px;outline:none;box-sizing:border-box;"/>
+        </div>
+        ${[{k:"ur",l:isUr?"نام (اردو)":"Name (Urdu)",d:"rtl"},{k:"en",l:"Name (English)",d:"ltr"},{k:"roman",l:"Roman Urdu",d:"ltr"}].map(f=>`
+          <div style="margin-bottom:9px;"><label style="display:block;font-size:11px;color:${T.text2};margin-bottom:4px;font-family:${ff};">${f.l}</label>
+            <input value="${esc(state.form[f.k]||"")}" oninput="state.form['${f.k}']=this.value" style="width:100%;background:${T.inp};border:1px solid ${T.inpBorder};border-radius:10px;color:${T.text};padding:9px 12px;font-size:13px;outline:none;box-sizing:border-box;font-family:${ff};" dir="${f.d}"/>
+          </div>`).join("")}
+        <div style="margin-bottom:9px;"><label style="display:block;font-size:11px;color:${T.text2};margin-bottom:4px;font-family:${ff};">${isUr?"زمرہ":"Category"}</label>
+          <select onchange="state.form.cat=this.value" style="width:100%;background:${T.sel};border:1px solid ${T.inpBorder};border-radius:10px;color:${T.text};padding:9px 12px;font-size:13px;outline:none;box-sizing:border-box;font-family:${ff};">
+            ${CATS.filter(c=>c.id!=="all").map(c=>`<option value="${c.id}" ${state.form.cat===c.id?"selected":""}>${c.ur} (${c.en})</option>`).join("")}
+          </select>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-bottom:9px;">
+          ${[{k:"buy",l:isUr?"خریداری":"Buy"},{k:"sell",l:isUr?"فروخت":"Sell"},{k:"stock",l:isUr?"اسٹاک":"Stock"}].map(f=>`
+            <div><label style="display:block;font-size:11px;color:${T.text2};margin-bottom:4px;font-family:${ff};">${f.l}</label>
+              <input type="number" value="${state.form[f.k]||""}" oninput="state.form['${f.k}']=this.value" style="width:100%;background:${T.inp};border:1px solid ${T.inpBorder};border-radius:10px;color:${T.text};padding:9px 12px;font-size:13px;outline:none;box-sizing:border-box;"/>
+            </div>`).join("")}
+          <div><label style="display:block;font-size:11px;color:${T.text2};margin-bottom:4px;font-family:${ff};">${isUr?"اکائی":"Unit"}</label>
+            <select onchange="state.form.unit=this.value" style="width:100%;background:${T.sel};border:1px solid ${T.inpBorder};border-radius:10px;color:${T.text};padding:9px 12px;font-size:13px;outline:none;box-sizing:border-box;">
+              ${["kg","g","ltr","ml","pcs","pkt","dzn","box","btl"].map(u=>`<option value="${u}" ${state.form.unit===u?"selected":""}>${u}</option>`).join("")}
+            </select>
+          </div>
+        </div>
+        <button onclick="saveProd()" style="background:linear-gradient(135deg,#3b82f6,#6366f1);border:none;border-radius:11px;color:white;padding:11px;font-weight:600;font-size:13px;cursor:pointer;width:100%;margin-top:8px;font-family:${ff};">✔ ${isUr?"محفوظ کریں":"Save"}</button>
+        <button onclick="state.modal=null;renderModals();" style="background:${T.btnSec};border:1px solid ${T.btnSecBorder};border-radius:11px;color:${T.text};padding:10px;font-weight:500;font-size:13px;cursor:pointer;width:100%;margin-top:8px;font-family:${ff};">${isUr?"رد کریں":"Cancel"}</button>
+      </div>
+    </div>`;
+  }
+
+  // Notif Modal
+  if (state.modal==="notif") {
+    const { lowItems } = computed();
+    html += `<div class="modal-overlay" onclick="state.modal=null;renderModals();">
+      <div class="modal-box" onclick="event.stopPropagation()" style="background:${T.card};border:1px solid ${T.cardBorder};backdrop-filter:blur(20px);max-height:60vh;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:13px;">
+          <span style="font-family:${ff};font-weight:600;font-size:14px;color:${T.text};">🔔 ${isUr?"الرٹ":"Alerts"}</span>
+          <button onclick="state.modal=null;renderModals();" style="background:${T.card};border:1px solid ${T.cardBorder};border-radius:7px;width:27px;height:27px;color:${T.text};cursor:pointer;font-size:13px;">✕</button>
+        </div>
+        ${lowItems.length===0?`<div style="text-align:center;padding:22px;color:${T.text3};font-size:12px;">✅ ${isUr?"سب ٹھیک":"All OK"}</div>`:
+        lowItems.map(p=>`
+          <div style="background:${T.lowBg};border:1px solid rgba(245,158,11,0.2);border-radius:10px;padding:10px 12px;margin-bottom:7px;display:flex;justify-content:space-between;align-items:center;">
+            <div style="display:flex;align-items:center;gap:8px;">
+              <span style="font-size:20px;">${p.emoji}</span>
+              <div><div style="font-family:${ff};font-size:13px;color:${T.text};">${esc(gn(p,state.lang))}</div><div style="font-size:10px;color:${T.text2};">${esc(p.en)}</div></div>
+            </div>
+            <span style="color:#f59e0b;font-weight:700;font-size:12px;">${p.stock} ${p.unit}</span>
+          </div>`).join("")}
+      </div>
+    </div>`;
+  }
+
+  // Receipt Modal
+  if (state.showReceipt) {
+    const bill = state.showReceipt;
+    html += `<div class="receipt-overlay" onclick="state.showReceipt=null;renderModals();">
+      <div class="receipt-box" onclick="event.stopPropagation()" style="background:${T.card};border:1px solid ${T.cardBorder};backdrop-filter:blur(20px);">
+        <div style="text-align:center;margin-bottom:14px;padding-bottom:14px;border-bottom:2px dashed ${T.hdrLine};">
+          <div style="font-size:32px;margin-bottom:6px;">🛒</div>
+          <div style="font-family:'Noto Nastaliq Urdu',serif;font-weight:700;font-size:18px;color:${T.text};">${esc(state.shopName)}</div>
+          <div style="font-size:11px;color:${T.text2};margin-top:2px;">Bablo Shop — Professional Grocery</div>
+          <div style="display:inline-block;background:linear-gradient(135deg,#3b82f6,#6366f1);color:white;padding:3px 14px;border-radius:99px;font-size:11px;margin-top:7px;font-weight:600;">Bill# ${esc(bill.billNo||"BS-001")}</div>
+        </div>
+        <div style="display:flex;justify-content:space-between;font-size:11px;color:${T.text2};padding:8px 0;border-bottom:1px solid ${T.hdrLine};margin-bottom:8px;">
+          <span>👤 ${esc(bill.customer)}</span><span>📅 ${dateStr(bill.date)}</span>
+        </div>
+        ${bill.items.map(item=>`
+          <div style="display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid ${T.hdrLine};">
+            <div style="flex:1;">
+              <div style="font-family:'Noto Nastaliq Urdu',serif;font-size:13px;font-weight:600;color:${T.text};">${esc(item.ur)}</div>
+              <div style="font-size:10px;color:${T.text2};">${esc(item.en)} • ${fmt(item.sell,state.cur)} × ${item.qty} ${item.unit}</div>
+            </div>
+            <span style="font-weight:700;color:#10b981;font-size:13px;">${fmt(item.sell*item.qty,state.cur)}</span>
+          </div>`).join("")}
+        <div style="margin-top:10px;background:${T.isDark?"rgba(59,130,246,0.08)":"rgba(59,130,246,0.05)"};border-radius:10px;padding:10px 12px;">
+          ${[{l:isUr?"کل رقم":"Total",v:fmt(bill.total,state.cur)},{l:isUr?"ادا کردہ":"Paid",v:fmt(bill.paid,state.cur)}].map(r=>`
+            <div style="display:flex;justify-content:space-between;padding:4px 0;font-size:13px;color:${T.text};"><span style="color:${T.text2};">${r.l}</span><span>${r.v}</span></div>`).join("")}
+          <div style="display:flex;justify-content:space-between;padding:8px 0 0;border-top:1px solid ${T.hdrLine};margin-top:4px;font-weight:700;font-size:15px;">
+            <span style="font-family:'Noto Nastaliq Urdu',serif;color:${T.text};">${bill.bal>0?(isUr?"باقی رقم":"Balance Due"):(isUr?"واپسی":"Change")}</span>
+            <span style="color:${bill.bal>0?"#ef4444":"#10b981"};">${fmt(Math.abs(bill.bal),state.cur)}</span>
+          </div>
+        </div>
+        <div style="text-align:center;margin-top:12px;padding:10px 0;border-top:1px dashed ${T.hdrLine};font-size:11px;color:${T.text3};">
+          <div style="font-family:'Noto Nastaliq Urdu',serif;margin-bottom:3px;">شکریہ! آپ کا شکریہ</div>
+          <div>Thank you for shopping! 🙏</div>
+        </div>
+        <div style="display:flex;gap:8px;margin-top:12px;">
+          <button onclick="downloadReceipt(state.bills.find(b=>b.id==${bill.id})||state.showReceipt)" style="background:linear-gradient(135deg,#3b82f6,#6366f1);border:none;border-radius:11px;color:white;padding:11px;font-weight:600;font-size:12px;cursor:pointer;flex:1;font-family:${ff};">🖨️ ${isUr?"پرنٹ / PDF":"Print/PDF"}</button>
+          <button onclick="shareReceipt(state.bills.find(b=>b.id==${bill.id})||state.showReceipt)" style="background:${T.btnSec};border:1px solid ${T.btnSecBorder};border-radius:11px;color:${T.text};padding:10px;font-weight:500;font-size:12px;cursor:pointer;flex:1;display:flex;align-items:center;justify-content:center;gap:5px;font-family:${ff};">📤 ${isUr?"شیئر":"Share"}</button>
+          <button onclick="state.showReceipt=null;renderModals();" style="width:40px;height:40px;border-radius:10px;background:${T.card};border:1px solid ${T.cardBorder};color:${T.text};cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">✕</button>
+        </div>
+      </div>
+    </div>`;
+  }
 
   // Calculator
-  const calcPress=(btn)=>{
-    playSound("calc");
-    if(btn==="C"){ setCalcVal("0"); setCalcPrev(""); setCalcOp(null); setCalcNew(true); return; }
-    if(btn==="⌫"){ setCalcVal(v=>v.length>1?v.slice(0,-1):"0"); return; }
-    if(btn==="±"){ setCalcVal(v=>(+v*-1).toString()); return; }
-    if(btn==="%"){ setCalcVal(v=>(+v/100).toString()); return; }
-    if(["+","-","×","÷"].includes(btn)){
-      setCalcPrev(calcVal); setCalcOp(btn); setCalcNew(true); return;
-    }
-    if(btn==="="){
-      if(!calcOp) return;
-      const a=+calcPrev, b=+calcVal;
-      let r=0;
-      if(calcOp==="+") r=a+b; if(calcOp==="-") r=a-b;
-      if(calcOp==="×") r=a*b; if(calcOp==="÷") r=b!==0?a/b:0;
-      setCalcVal(parseFloat(r.toFixed(6)).toString());
-      setCalcOp(null); setCalcPrev(""); setCalcNew(true); playSound("success"); return;
-    }
-    if(btn==="."){
-      if(!calcVal.includes(".")) setCalcVal(v=>v+"."); return;
-    }
-    if(calcNew){ setCalcVal(btn); setCalcNew(false); }
-    else setCalcVal(v=>v==="0"?btn:v+btn);
-  };
-
-  // Receipt share/download
-  const downloadReceipt=(bill)=>{
-    const el=document.getElementById("receipt-print");
-    if(!el) return;
-    const html=`<!DOCTYPE html><html><head><meta charset="UTF-8"><style>
-    body{font-family:'Segoe UI',sans-serif;max-width:350px;margin:0 auto;padding:20px;background:#fff;color:#1e293b;}
-    .header{text-align:center;margin-bottom:16px;border-bottom:2px solid #3b82f6;padding-bottom:12px;}
-    .shop{font-size:22px;font-weight:700;color:#1e293b;}.sub{font-size:12px;color:#64748b;}
-    .bill-no{background:#3b82f6;color:white;padding:4px 12px;border-radius:20px;font-size:11px;display:inline-block;margin-top:6px;}
-    .meta{display:flex;justify-content:space-between;font-size:12px;color:#64748b;margin:10px 0;padding:8px;background:#f8fafc;border-radius:8px;}
-    table{width:100%;border-collapse:collapse;margin:12px 0;}
-    th{background:#3b82f6;color:white;padding:7px 10px;font-size:12px;text-align:left;}
-    td{padding:7px 10px;font-size:12px;border-bottom:1px solid #e2e8f0;}
-    .total-row{background:#f0f9ff;font-weight:700;}
-    .balance{font-size:16px;font-weight:700;color:${bill.bal>0?"#ef4444":"#10b981"};text-align:center;padding:10px;border:2px solid ${bill.bal>0?"#ef4444":"#10b981"};border-radius:8px;margin-top:10px;}
-    .footer{text-align:center;font-size:11px;color:#94a3b8;margin-top:16px;border-top:1px dashed #e2e8f0;padding-top:10px;}
-    </style></head><body>
-    <div class="header"><div class="shop">🛒 ${shopName}</div><div class="sub">Bablo Shop — Professional Grocery</div><div class="bill-no">Bill# ${bill.billNo||"BS-001"}</div></div>
-    <div class="meta"><span>👤 ${bill.customer}</span><span>📅 ${dateStr(bill.date)}</span><span>🕐 ${timeStr(bill.date)}</span></div>
-    <table><thead><tr><th>Item</th><th>Qty</th><th>Price</th><th>Total</th></tr></thead><tbody>
-    ${bill.items.map(i=>`<tr><td>${i.ur}<br><small style="color:#94a3b8">${i.en}</small></td><td>${i.qty} ${i.unit}</td><td>${cur}${i.sell}</td><td>${cur}${i.sell*i.qty}</td></tr>`).join("")}
-    </tbody></table>
-    <table><tbody>
-    <tr class="total-row"><td colspan="3">کل رقم / Total</td><td>${fmt(bill.total,cur)}</td></tr>
-    <tr><td colspan="3">ادا کردہ / Paid</td><td>${fmt(bill.paid,cur)}</td></tr>
-    </tbody></table>
-    <div class="balance">${bill.bal>0?"باقی / Balance Due":"واپسی / Change"}: ${fmt(Math.abs(bill.bal),cur)}</div>
-    <div class="footer">شکریہ — Thank you for shopping!<br>Bablo Shop by Muhammad Usman 🇵🇰</div>
-    </body></html>`;
-    const w=window.open("","_blank");
-    w.document.write(html); w.document.close();
-    setTimeout(()=>w.print(),400);
-    playSound("success");
-  };
-
-  const shareReceipt=(bill)=>{
-    const text=`🛒 *${shopName}* — بابلو شاپ\n📋 Bill# ${bill.billNo||"BS-001"}\n👤 ${bill.customer}\n📅 ${dateStr(bill.date)}\n\n${bill.items.map(i=>`• ${i.ur} ×${i.qty} = ${fmt(i.sell*i.qty,cur)}`).join("\n")}\n\n💰 کل / Total: ${fmt(bill.total,cur)}\n✅ ادا / Paid: ${fmt(bill.paid,cur)}\n${bill.bal>0?`🔴 باقی: ${fmt(bill.bal,cur)}`:`🟢 واپسی: ${fmt(Math.abs(bill.bal),cur)}`}\n\nشکریہ! Thank you 🙏`;
-    if(navigator.share){ navigator.share({title:"Bablo Shop Receipt",text}); }
-    else{ navigator.clipboard.writeText(text).then(()=>showT(isUr?"کاپی ہو گیا":"Copied!","ok")); }
-    playSound("success");
-  };
-
-  if(splash) return (
-    <div style={{ background:"linear-gradient(145deg,#060e1c,#0a1628,#060e1c)", minHeight:520, display:"flex", alignItems:"center", justifyContent:"center" }}>
-      <div style={{ textAlign:"center" }}>
-        <div style={{ fontSize:60, marginBottom:14, filter:"drop-shadow(0 0 20px rgba(59,130,246,0.5))" }}>🛒</div>
-        <div style={{ fontFamily:"'Noto Nastaliq Urdu',serif", fontSize:30, fontWeight:700, color:"#f1f5f9", textShadow:"0 0 30px rgba(99,102,241,0.4)" }}>بابلو شاپ</div>
-        <div style={{ fontSize:16, color:"#3b82f6", letterSpacing:4, marginTop:5 }}>BABLO SHOP</div>
-        <div style={{ fontSize:12, color:"#475569", marginTop:6 }}>by Muhammad Usman</div>
-        <div style={{ display:"flex", gap:5, justifyContent:"center", marginTop:20 }}>
-          {[0,1,2].map(i=><div key={i} style={{ width:8, height:8, borderRadius:"50%", background:"#3b82f6", animation:`pulse 1.2s ease ${i*0.2}s infinite` }}/>)}
+  if (state.showCalc) {
+    html += `<div class="calc-overlay" onclick="state.showCalc=false;renderModals();">
+      <div class="calc-box" onclick="event.stopPropagation()" style="background:${T.card};border:1px solid ${T.cardBorder};backdrop-filter:blur(20px);">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+          <span style="font-family:${ff};font-weight:600;font-size:14px;color:${T.text};">🧮 ${isUr?"کیلکولیٹر":"Calculator"}</span>
+          <button onclick="state.showCalc=false;renderModals();" style="background:${T.card};border:1px solid ${T.cardBorder};border-radius:7px;width:27px;height:27px;color:${T.text};cursor:pointer;font-size:13px;">✕</button>
         </div>
+        <div id="calc-display" style="background:${T.isDark?"rgba(0,0,0,0.4)":"rgba(59,130,246,0.06)"};border:1px solid ${T.cardBorder};border-radius:12px;padding:14px 16px;margin-bottom:12px;text-align:right;min-height:70px;">
+          <div id="calc-prev" style="font-size:11px;color:${T.text3};min-height:16px;">${state.calcPrev}${state.calcOp?` ${state.calcOp}`:""}</div>
+          <div id="calc-val" style="font-size:28px;font-weight:700;color:${T.text};letter-spacing:1px;">${state.calcVal}</div>
+        </div>
+        ${[["C","±","%","÷"],["7","8","9","×"],["4","5","6","-"],["1","2","3","+"],[" ","0",".","="]].map((row,ri)=>`
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:7px;margin-bottom:7px;">
+            ${row.map((btn,bi)=>{
+              const isOp=["+","-","×","÷","="].includes(btn);
+              const isTop=ri===0;
+              const isEmpty=btn===" ";
+              const span=btn==="0"?"grid-column:span 2":"";
+              return `<button onclick="${isEmpty?"":"calcPress('"+btn+"')"}" style="${span};padding:14px 6px;border-radius:11px;border:none;font-size:16px;font-weight:600;cursor:${isEmpty?"default":"pointer"};background:${isOp?"linear-gradient(135deg,#3b82f6,#6366f1)":isTop?T.isDark?"rgba(255,255,255,0.15)":"rgba(99,102,241,0.12)":T.isDark?"rgba(255,255,255,0.08)":"rgba(100,116,139,0.08)"};color:${isOp?"white":isTop?"#3b82f6":T.text};opacity:${isEmpty?"0":"1"};transition:transform 0.08s;">${btn}</button>`;
+            }).join("")}
+          </div>`).join("")}
+        <button onclick="navigator.clipboard.writeText(state.calcVal).then(()=>showToast('${isUr?"کاپی ✓":"Copied ✓"}','ok'));" style="background:${T.btnSec};border:1px solid ${T.btnSecBorder};border-radius:11px;color:${T.text};padding:10px;font-weight:500;font-size:12px;cursor:pointer;width:100%;margin-top:4px;">📋 ${isUr?"نتیجہ کاپی کریں":"Copy Result"}</button>
       </div>
-      <style>{`@keyframes pulse{0%,100%{opacity:0.3;transform:scale(0.8)}50%{opacity:1;transform:scale(1.2)}}`}</style>
-    </div>
-  );
+    </div>`;
+  }
 
-  return (
-    <div style={{ background:T.bg, minHeight:520, color:T.text, fontFamily:ff, direction:dir, position:"relative", fontSize:14 }}>
-      <style>{`
-        *{box-sizing:border-box;} input::placeholder{color:#94a3b8;} select option{background:${T.sel};}
-        ::-webkit-scrollbar{width:3px;height:3px;} ::-webkit-scrollbar-thumb{background:rgba(99,102,241,0.3);border-radius:99px;}
-        .hv:hover{filter:brightness(1.08);} .hv2:active{transform:scale(0.96);}
-        .chip{border-radius:99px;padding:4px 11px;font-size:11px;cursor:pointer;white-space:nowrap;border:1px solid ${T.cardBorder};background:${T.card};color:${T.text2};transition:all 0.2s;}
-        .chip.on{background:linear-gradient(135deg,#3b82f6,#6366f1);border-color:#3b82f6;color:#fff;}
-        .tab{flex:1;padding:8px;border-radius:9px;background:${T.card};border:1px solid ${T.cardBorder};color:${T.text2};font-size:12px;cursor:pointer;transition:all 0.2s;fontFamily:${ff};}
-        .tab.on{background:linear-gradient(135deg,#3b82f6,#6366f1);border-color:#3b82f6;color:#fff;}
-        .pcrd{background:${T.card};border:1px solid ${T.cardBorder};border-radius:14px;padding:12px 10px;position:relative;overflow:hidden;transition:transform 0.15s,box-shadow 0.15s;box-shadow:${T.shadow};}
-        .pcrd:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(59,130,246,0.15);}
-        .nb{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;background:none;border:none;cursor:pointer;padding:5px 2px;transition:color 0.2s;}
-        .nb:active{transform:scale(0.9);}
-        @keyframes su{from{transform:translateY(100%)}to{transform:none}}
-        @keyframes fi{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:none}}
-        .pi{animation:fi 0.2s ease;}
-        .img-upload-btn{display:flex;align-items:center;justify-content:center;gap:6px;width:100%;padding:10px;border:2px dashed ${T.cardBorder};border-radius:10px;cursor:pointer;color:${T.text2};font-size:12px;transition:all 0.2s;background:${T.inp};}
-        .img-upload-btn:hover{border-color:#3b82f6;color:#3b82f6;}
-      `}</style>
-
-      {/* BG orbs */}
-      {isDark&&<>
-        <div style={{ position:"fixed",width:260,height:260,borderRadius:"50%",background:"radial-gradient(circle,rgba(59,130,246,0.13) 0%,transparent 70%)",top:-60,right:-60,filter:"blur(50px)",pointerEvents:"none",zIndex:0 }}/>
-        <div style={{ position:"fixed",width:220,height:220,borderRadius:"50%",background:"radial-gradient(circle,rgba(99,102,241,0.1) 0%,transparent 70%)",bottom:-50,left:-50,filter:"blur(50px)",pointerEvents:"none",zIndex:0 }}/>
-      </>}
-
-      {/* TOPBAR */}
-      <div style={{ display:"flex",alignItems:"center",justifyContent:"space-between",padding:"0 13px",height:54,background:T.topbar,borderBottom:`1px solid ${T.topbarBorder}`,backdropFilter:"blur(20px)",WebkitBackdropFilter:"blur(20px)",position:"sticky",top:0,zIndex:100,boxShadow:isDark?"none":"0 2px 16px rgba(59,130,246,0.08)" }}>
-        <button className="hv hv2" onClick={()=>{ playSound("tap"); setDrawer(true); }} style={{ background:T.card,border:`1px solid ${T.cardBorder}`,borderRadius:9,padding:"5px 9px",color:T.text,cursor:"pointer",fontSize:13 }}>☰</button>
-        <span style={{ fontFamily:ff,fontWeight:700,fontSize:15,color:T.text }}>{pages[page]||"بابلو شاپ"}</span>
-        <div style={{ display:"flex",gap:5 }}>
-          <button className="hv hv2" onClick={()=>{ playSound("tap"); setTheme(t=>t==="dark"?"white":"dark"); }} style={{ background:T.card,border:`1px solid ${T.cardBorder}`,borderRadius:9,padding:"5px 8px",color:T.text,cursor:"pointer",fontSize:13 }} title="Toggle Theme">
-            {isDark?"☀️":"🌙"}
-          </button>
-          <button className="hv hv2" onClick={()=>{ playSound("tap"); setLang(l=>l==="ur"?"en":l==="en"?"roman":"ur"); }} style={{ background:T.card,border:`1px solid ${T.cardBorder}`,borderRadius:9,padding:"5px 8px",color:T.text,cursor:"pointer",fontSize:11 }}>
-            {lang==="ur"?"اُر":lang==="en"?"EN":"RO"}
-          </button>
-          <button className="hv hv2" onClick={()=>{ playSound("tap"); setShowCalc(true); }} style={{ background:T.card,border:`1px solid ${T.cardBorder}`,borderRadius:9,padding:"5px 8px",color:T.text,cursor:"pointer",fontSize:13 }}>🧮</button>
-          <button className="hv hv2" onClick={()=>{ playSound("tap"); setModal("notif"); }} style={{ background:T.card,border:`1px solid ${T.cardBorder}`,borderRadius:9,padding:"5px 8px",color:T.text,cursor:"pointer",fontSize:13,position:"relative" }}>
-            🔔{lowItems.length>0&&<span style={{ position:"absolute",top:-3,right:-3,background:"#ef4444",color:"#fff",fontSize:9,borderRadius:99,minWidth:14,height:14,display:"flex",alignItems:"center",justifyContent:"center" }}>{lowItems.length}</span>}
-          </button>
-        </div>
-      </div>
-
-      {/* DRAWER */}
-      {drawer&&<div onClick={()=>setDrawer(false)} style={{ position:"fixed",inset:0,zIndex:150,background:"rgba(0,0,0,0.4)",backdropFilter:"blur(4px)" }}/>}
-      <div style={{ position:"fixed",top:0,[isUr?"right":"left"]:0,bottom:0,zIndex:200,width:255,background:T.drawerBg,border:`1px solid ${T.cardBorder}`,backdropFilter:"blur(30px)",WebkitBackdropFilter:"blur(30px)",borderRadius:isUr?"13px 0 0 13px":"0 13px 13px 0",transform:drawer?"none":`translateX(${isUr?"100%":"-100%"})`,transition:"transform 0.28s cubic-bezier(0.4,0,0.2,1)",display:"flex",flexDirection:"column",overflowY:"auto",direction:dir }}>
-        <div style={{ display:"flex",alignItems:"center",gap:12,padding:"20px 16px 14px",borderBottom:`1px solid ${T.hdrLine}` }}>
-          <span style={{ fontSize:28 }}>🛒</span>
-          <div><div style={{ fontFamily:"'Noto Nastaliq Urdu',serif",fontSize:15,fontWeight:700,color:T.text }}>{shopName}</div><div style={{ fontSize:11,color:T.text2 }}>Bablo Shop</div></div>
-        </div>
-        {[{pg:"home",icon:"📊",ur:"ڈیش بورڈ",en:"Dashboard"},{pg:"prods",icon:"📦",ur:"مصنوعات",en:"Products"},{pg:"sales2",icon:"💰",ur:"فروخت درج",en:"Record Sale"},{pg:"stk",icon:"📈",ur:"اسٹاک",en:"Stock"},{pg:"rep",icon:"📋",ur:"رپورٹ",en:"Reports"},{pg:"bill",icon:"🧾",ur:"بل بنائیں",en:"Billing"},{pg:"favs",icon:"❤️",ur:"پسندیدہ",en:"Favorites"},{pg:"set",icon:"⚙️",ur:"ترتیبات",en:"Settings"}].map(i=>(
-          <div key={i.pg} className="hv" onClick={()=>nav(i.pg)} style={{ padding:"11px 16px",cursor:"pointer",display:"flex",alignItems:"center",gap:10,fontSize:13,borderRadius:9,margin:"2px 7px",background:page===i.pg?`rgba(59,130,246,${isDark?"0.18":"0.12"})`:"transparent",color:page===i.pg?"#3b82f6":T.text,fontFamily:ff }}>
-            <span>{i.icon}</span><span>{lang==="en"?i.en:i.ur}</span>
-          </div>
-        ))}
-        <div style={{ marginTop:"auto",padding:13,fontSize:10,color:T.text3,textAlign:"center" }}>v2.0 • Muhammad Usman 🇵🇰</div>
-      </div>
-
-      {/* ── PAGES ── */}
-      <div style={{ padding:"12px 12px 72px",position:"relative",zIndex:1 }} className="pi" key={page}>
-
-        {/* HOME */}
-        {page==="home"&&<div>
-          <div style={{ ...gl,display:"flex",alignItems:"center",gap:8,padding:"9px 13px",marginBottom:13 }}>
-            <span style={{ opacity:0.5,fontSize:13 }}>🔍</span>
-            <input value={srch} onChange={e=>setSrch(e.target.value)} placeholder={isUr?"تلاش کریں...":"Search products..."} style={{ flex:1,background:"none",border:"none",outline:"none",color:T.text,fontSize:13,fontFamily:ff }} dir="auto"/>
-          </div>
-          {srch&&<div style={{ marginBottom:12 }}>
-            {products.filter(p=>p.ur.includes(srch)||p.en.toLowerCase().includes(srch.toLowerCase())||p.roman.toLowerCase().includes(srch.toLowerCase())).slice(0,4).map(p=>(
-              <div key={p.id} style={{ ...gl,borderRadius:11,padding:"9px 12px",marginBottom:6,display:"flex",alignItems:"center",justifyContent:"space-between",gap:8 }}>
-                <div style={{ width:36,height:36,borderRadius:8,overflow:"hidden",flexShrink:0,background:isDark?"rgba(255,255,255,0.08)":"#f1f5f9",display:"flex",alignItems:"center",justifyContent:"center" }}>
-                  {p.img?<img src={p.img} style={{ width:"100%",height:"100%",objectFit:"cover" }} alt=""/>:<span style={{ fontSize:18 }}>{p.emoji}</span>}
-                </div>
-                <div style={{ flex:1 }}><div style={{ fontFamily:ff,fontSize:13,fontWeight:600,color:T.text }}>{gn(p,lang)}</div><div style={{ fontSize:10,color:T.text2 }}>{p.en} • {fmt(p.sell,cur)}</div></div>
-                <button onClick={()=>{addBill(p);setSrch("");}} style={{ background:"rgba(16,185,129,0.15)",border:"1px solid rgba(16,185,129,0.25)",borderRadius:8,color:"#10b981",padding:"5px 10px",fontSize:11,cursor:"pointer",fontFamily:ff }}>{isUr?"+بل":"+Bill"}</button>
-              </div>
-            ))}
-          </div>}
-          <div style={{ display:"grid",gridTemplateColumns:"1fr 1fr",gap:9,marginBottom:16 }}>
-            {[{icon:"💰",val:fmt(todayRev,cur),lbl:isUr?"آج کی آمدنی":"Today Revenue",c:"#10b981"},{icon:"📦",val:products.length,lbl:isUr?"کل اشیاء":"Total Items",c:"#3b82f6"},{icon:"⚠️",val:lowItems.length,lbl:isUr?"کم اسٹاک":"Low Stock",c:"#f59e0b"},{icon:"❤️",val:favItems.length,lbl:isUr?"پسندیدہ":"Favorites",c:"#ef4444"}].map((s,i)=>(
-              <div key={i} style={{ ...gl,borderRadius:13,padding:"13px 10px",textAlign:"center" }}>
-                <div style={{ fontSize:22,marginBottom:5 }}>{s.icon}</div>
-                <div style={{ fontSize:20,fontWeight:700,color:s.c }}>{s.val}</div>
-                <div style={{ fontSize:11,color:T.text2,fontFamily:ff,marginTop:3 }}>{s.lbl}</div>
-              </div>
-            ))}
-          </div>
-          <div style={hdr}>{isUr?"فوری رسائی":"Quick Access"}</div>
-          <div style={{ display:"grid",gridTemplateColumns:"1fr 1fr",gap:8,marginBottom:4 }}>
-            {[{pg:"bill",icon:"🧾",ur:"نیا بل",en:"New Bill"},{pg:"prods",icon:"➕",ur:"مصنوع شامل",en:"Add Product"},{pg:"rep",icon:"📊",ur:"رپورٹ",en:"Reports"},{pg:"stk",icon:"📈",ur:"اسٹاک",en:"Stock"}].map(q=>(
-              <button key={q.pg} className="hv hv2" onClick={()=>nav(q.pg)} style={{ ...gl,borderRadius:11,padding:"13px 8px",display:"flex",flexDirection:"column",alignItems:"center",gap:6,cursor:"pointer",color:T.text,fontFamily:ff,fontSize:12,border:`1px solid ${T.cardBorder}` }}>
-                <span style={{ fontSize:22 }}>{q.icon}</span><span>{lang==="en"?q.en:q.ur}</span>
-              </button>
-            ))}
-          </div>
-          {lowItems.length>0&&<><div style={hdr}>⚠️ {isUr?"کم اسٹاک الرٹ":"Low Stock Alert"}</div>{lowItems.slice(0,4).map(p=>(
-            <div key={p.id} style={{ background:T.lowBg,border:"1px solid rgba(245,158,11,0.2)",borderRadius:10,padding:"9px 12px",display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:6 }}>
-              <span style={{ fontFamily:ff,fontSize:13,color:T.text }}>{gn(p,lang)}</span>
-              <span style={{ color:"#f59e0b",fontWeight:700,fontSize:12 }}>{p.stock} {p.unit}</span>
-            </div>
-          ))}</>}
-          <div style={hdr}>{isUr?"حالیہ بل":"Recent Bills"}</div>
-          {bills.slice(0,3).length===0?<div style={{ textAlign:"center",padding:18,color:T.text3,fontSize:12 }}>📭 {isUr?"کوئی بل نہیں":"No bills yet"}</div>:
-          bills.slice(0,3).map(b=>(
-            <div key={b.id} style={{ ...gl,borderRadius:10,padding:"9px 12px",marginBottom:6,display:"flex",justifyContent:"space-between",alignItems:"center" }} onClick={()=>setShowReceipt(b)}>
-              <div><div style={{ fontFamily:ff,fontSize:13,fontWeight:600,color:T.text }}>{b.customer}</div><div style={{ fontSize:10,color:T.text2 }}>{b.billNo} • {dateStr(b.date)}</div></div>
-              <div style={{ textAlign:"right" }}><div style={{ color:"#10b981",fontWeight:700,fontSize:13 }}>{fmt(b.total,cur)}</div><div style={{ fontSize:10,color:b.bal>0?"#ef4444":"#10b981" }}>{b.bal>0?`باقی ${fmt(b.bal,cur)}`:"ادا ✓"}</div></div>
-            </div>
-          ))}
-        </div>}
-
-        {/* PRODUCTS */}
-        {page==="prods"&&<div>
-          <div style={{ display:"flex",gap:7,marginBottom:9,alignItems:"center",flexWrap:"wrap" }}>
-            <button onClick={openAdd} style={{ ...priBtn,width:"auto",padding:"8px 13px",marginTop:0,fontSize:12 }}>+ {isUr?"شامل کریں":"Add"}</button>
-            <div style={{ ...gl,display:"flex",alignItems:"center",gap:6,padding:"7px 11px",flex:1,borderRadius:9 }}>
-              <span style={{ opacity:0.4,fontSize:12 }}>🔍</span>
-              <input value={srch} onChange={e=>setSrch(e.target.value)} placeholder={isUr?"تلاش...":"Search..."} style={{ flex:1,background:"none",border:"none",outline:"none",color:T.text,fontSize:12,fontFamily:ff }} dir="auto"/>
-            </div>
-          </div>
-          <div style={{ display:"flex",gap:5,overflowX:"auto",marginBottom:11,paddingBottom:3 }}>
-            {CATS.map(c=><button key={c.id} className={`chip${catF===c.id?" on":""}`} onClick={()=>{playSound("tap");setCatF(c.id);}} style={{ fontFamily:ff,color:catF===c.id?"#fff":T.text2 }}>{lang==="en"?c.en:c.ur}</button>)}
-          </div>
-          {fprod.length===0?<div style={{ textAlign:"center",padding:36,color:T.text3 }}><div style={{ fontSize:32,marginBottom:7 }}>📦</div>{isUr?"کوئی اشیاء نہیں":"No items"}</div>:
-          <div style={{ display:"grid",gridTemplateColumns:"1fr 1fr",gap:9 }}>
-            {fprod.map(p=><PCard key={p.id} p={p} lang={lang} cur={cur} ff={ff} thresh={thresh} T={T} isDark={isDark} onEdit={openEdit} onDel={delProd} onFav={togFav} onBill={addBill}/>)}
-          </div>}
-        </div>}
-
-        {/* SALES */}
-        {page==="sales2"&&<div>
-          <div style={hdr}>{isUr?"فروخت درج کریں":"Record Sale"}</div>
-          <div style={{ ...gl,borderRadius:13,padding:15,marginBottom:13 }}>
-            <div style={{ marginBottom:9 }}><label style={lbl}>{isUr?"مصنوع":"Product"}</label>
-              <select value={sPid} onChange={e=>setSPid(e.target.value)} style={sel}>
-                <option value="">{isUr?"-- منتخب کریں --":"-- Select --"}</option>
-                {products.map(p=><option key={p.id} value={p.id}>{gn(p,lang)} — {fmt(p.sell,cur)}</option>)}
-              </select>
-            </div>
-            <div style={{ display:"grid",gridTemplateColumns:"1fr 1fr",gap:8,marginBottom:9 }}>
-              <div><label style={lbl}>{isUr?"مقدار":"Qty"}</label><input type="number" value={sQty} onChange={e=>setSQty(+e.target.value)} min={1} style={inp}/></div>
-              <div><label style={lbl}>{isUr?"قیمت":"Price"} ({cur})</label><input type="number" value={sPrice} onChange={e=>setSPrice(e.target.value)} placeholder={products.find(p=>p.id===+sPid)?.sell||0} style={inp}/></div>
-            </div>
-            <button onClick={doSale} style={priBtn}>✔ {isUr?"فروخت درج کریں":"Record Sale"}</button>
-          </div>
-          <div style={hdr}>{isUr?"فروخت تاریخ":"Sales History"}</div>
-          {sales.slice(0,20).length===0?<div style={{ textAlign:"center",padding:22,color:T.text3,fontSize:12 }}>📭</div>:
-          sales.slice(0,20).map(s=>(
-            <div key={s.id} style={{ ...gl,borderRadius:10,padding:"9px 12px",marginBottom:6,display:"flex",justifyContent:"space-between",alignItems:"center" }}>
-              <div><div style={{ fontFamily:ff,fontSize:13,color:T.text }}>{lang==="en"?s.nameEn:s.name}</div><div style={{ fontSize:10,color:T.text2 }}>×{s.qty} • {dateStr(s.date)}</div></div>
-              <div style={{ textAlign:"right" }}><div style={{ color:"#10b981",fontWeight:700,fontSize:13 }}>{fmt(s.total,cur)}</div><div style={{ fontSize:10,color:"#6366f1" }}>+{fmt(s.profit||0,cur)}</div></div>
-            </div>
-          ))}
-        </div>}
-
-        {/* STOCK */}
-        {page==="stk"&&<div>
-          <div style={hdr}>{isUr?"اسٹاک مینیجمنٹ":"Stock Management"}</div>
-          {products.map(p=>{ const low=p.stock<=thresh,warn=p.stock<=thresh*2&&!low; return(
-            <div key={p.id} style={{ ...gl,borderRadius:10,padding:"10px 12px",marginBottom:6,display:"flex",alignItems:"center",gap:10 }}>
-              <div style={{ width:36,height:36,borderRadius:8,overflow:"hidden",flexShrink:0,background:isDark?"rgba(255,255,255,0.08)":"#f1f5f9",display:"flex",alignItems:"center",justifyContent:"center" }}>
-                {p.img?<img src={p.img} style={{ width:"100%",height:"100%",objectFit:"cover" }} alt=""/>:<span style={{ fontSize:18 }}>{p.emoji||"📦"}</span>}
-              </div>
-              <div style={{ flex:1 }}><div style={{ fontFamily:ff,fontSize:13,fontWeight:600,color:T.text }}>{gn(p,lang)}</div><div style={{ fontSize:10,color:T.text2 }}>{p.en}</div></div>
-              <div style={{ display:"flex",alignItems:"center",gap:5 }}>
-                <button onClick={()=>adjStk(p.id,-1)} style={{ width:28,height:28,borderRadius:7,background:T.card,border:`1px solid ${T.cardBorder}`,color:T.text,fontSize:15,cursor:"pointer" }}>−</button>
-                <span style={{ minWidth:30,textAlign:"center",fontWeight:700,fontSize:14,color:low?"#ef4444":warn?"#f59e0b":"#10b981" }}>{p.stock}</span>
-                <button onClick={()=>adjStk(p.id,1)} style={{ width:28,height:28,borderRadius:7,background:T.card,border:`1px solid ${T.cardBorder}`,color:T.text,fontSize:15,cursor:"pointer" }}>+</button>
-              </div>
-              {low&&<span>⚠️</span>}
-            </div>
-          );})}
-        </div>}
-
-        {/* REPORTS */}
-        {page==="rep"&&<div>
-          <div style={{ display:"flex",gap:6,marginBottom:13 }}>
-            {["daily","weekly","monthly"].map(t=>(
-              <button key={t} className={`tab${rTab===t?" on":""}`} onClick={()=>{playSound("tap");setRTab(t);}} style={{ fontFamily:ff,color:rTab===t?"#fff":T.text2 }}>
-                {t==="daily"?(isUr?"روزانہ":"Daily"):t==="weekly"?(isUr?"ہفتہ وار":"Weekly"):(isUr?"ماہانہ":"Monthly")}
-              </button>
-            ))}
-          </div>
-          <div style={{ ...gl,borderRadius:13,padding:15,marginBottom:13 }}>
-            {[{lbl:isUr?"کل آمدنی":"Revenue",val:fmt(rRev,cur),c:"#10b981"},{lbl:isUr?"منافع":"Profit",val:fmt(rProfit,cur),c:"#6366f1"},{lbl:isUr?"فروخت":"Sales",val:rSales.length,c:"#3b82f6"}].map((r,i)=>(
-              <div key={i} style={{ display:"flex",justifyContent:"space-between",alignItems:"center",padding:"9px 0",borderBottom:i<2?`1px solid ${T.hdrLine}`:"none" }}>
-                <span style={{ fontFamily:ff,fontSize:13,color:T.text2 }}>{r.lbl}</span>
-                <span style={{ fontWeight:700,fontSize:15,color:r.c }}>{r.val}</span>
-              </div>
-            ))}
-          </div>
-          <div style={{ ...gl,borderRadius:13,padding:"13px 10px",marginBottom:13 }}>
-            <div style={{ fontSize:11,color:T.text2,marginBottom:9,fontFamily:ff }}>{isUr?"آمدنی گراف":"Revenue"}</div>
-            <div style={{ display:"flex",alignItems:"flex-end",gap:3,height:90 }}>
-              {chartD.map(([l,v],i)=>(
-                <div key={i} style={{ flex:1,display:"flex",flexDirection:"column",alignItems:"center",gap:3 }}>
-                  <div title={fmt(v,cur)} style={{ width:"100%",background:v>0?"linear-gradient(180deg,#3b82f6,#6366f1)":isDark?"rgba(255,255,255,0.08)":"rgba(99,102,241,0.1)",borderRadius:"3px 3px 0 0",height:Math.max(3,(v/cMax)*80),minHeight:3,transition:"height 0.4s" }}/>
-                  <span style={{ fontSize:8,color:T.text3 }}>{l}</span>
-                </div>
-              ))}
-            </div>
-          </div>
-          <div style={hdr}>{isUr?"حالیہ فروخت":"Recent"}</div>
-          {rSales.slice(0,8).map(s=>(
-            <div key={s.id} style={{ ...gl,borderRadius:9,padding:"8px 11px",marginBottom:5,display:"flex",justifyContent:"space-between" }}>
-              <div><div style={{ fontFamily:ff,fontSize:12,color:T.text }}>{lang==="en"?s.nameEn:s.name}</div><div style={{ fontSize:10,color:T.text2 }}>{dateStr(s.date)}</div></div>
-              <div style={{ textAlign:"right" }}><div style={{ color:"#10b981",fontWeight:700,fontSize:12 }}>{fmt(s.total,cur)}</div><div style={{ fontSize:10,color:"#6366f1" }}>+{fmt(s.profit||0,cur)}</div></div>
-            </div>
-          ))}
-        </div>}
-
-        {/* BILLING */}
-        {page==="bill"&&<div>
-          <div style={{ ...gl,borderRadius:11,padding:12,marginBottom:9 }}>
-            <label style={lbl}>{isUr?"گاہک کا نام":"Customer Name"}</label>
-            <input value={cname} onChange={e=>setCname(e.target.value)} style={inp} placeholder={isUr?"نام...":"Name..."} dir="auto"/>
-          </div>
-          <div style={{ ...gl,display:"flex",alignItems:"center",gap:6,padding:"8px 12px",borderRadius:10,marginBottom:8 }}>
-            <span style={{ opacity:0.4,fontSize:12 }}>🔍</span>
-            <input value={billSrch} onChange={e=>setBillSrch(e.target.value)} placeholder={isUr?"تلاش کریں...":"Search..."} style={{ flex:1,background:"none",border:"none",outline:"none",color:T.text,fontSize:12,fontFamily:ff }} dir="auto"/>
-          </div>
-          <div style={{ maxHeight:200,overflowY:"auto",marginBottom:10 }}>
-            {bprod.slice(0,15).map(p=>(
-              <div key={p.id} className="hv" onClick={()=>addBill(p)} style={{ display:"flex",alignItems:"center",gap:8,padding:"8px 12px",background:T.card,border:`1px solid ${T.cardBorder}`,borderRadius:9,marginBottom:5,cursor:"pointer" }}>
-                <div style={{ width:32,height:32,borderRadius:7,overflow:"hidden",flexShrink:0,background:isDark?"rgba(255,255,255,0.08)":"#f1f5f9",display:"flex",alignItems:"center",justifyContent:"center" }}>
-                  {p.img?<img src={p.img} style={{ width:"100%",height:"100%",objectFit:"cover" }} alt=""/>:<span style={{ fontSize:16 }}>{p.emoji}</span>}
-                </div>
-                <div style={{ flex:1 }}><div style={{ fontFamily:ff,fontSize:12,color:T.text }}>{gn(p,lang)}</div><div style={{ fontSize:10,color:T.text2 }}>{p.en}</div></div>
-                <span style={{ color:"#10b981",fontWeight:700,fontSize:13 }}>{fmt(p.sell,cur)}</span>
-              </div>
-            ))}
-          </div>
-          {billItems.length>0&&<div style={{ ...gl,borderRadius:13,padding:13 }}>
-            <div style={{ fontSize:12,color:T.text2,fontFamily:ff,marginBottom:8,fontWeight:600 }}>{isUr?"بل کی اشیاء":"Bill Items"} ({billItems.length})</div>
-            {billItems.map(item=>(
-              <div key={item.id} style={{ display:"flex",alignItems:"center",padding:"7px 0",borderBottom:`1px solid ${T.hdrLine}` }}>
-                <div style={{ flex:1,fontFamily:ff,fontSize:12,color:T.text }}>{gn(item,lang)}</div>
-                <div style={{ display:"flex",alignItems:"center",gap:4 }}>
-                  <button onClick={()=>setBillItems(i=>i.map(x=>x.id===item.id?{...x,qty:Math.max(1,x.qty-1)}:x))} style={{ width:24,height:24,borderRadius:6,background:T.card,border:`1px solid ${T.cardBorder}`,color:T.text,cursor:"pointer",fontSize:14 }}>−</button>
-                  <span style={{ minWidth:20,textAlign:"center",fontSize:12,fontWeight:600,color:T.text }}>{item.qty}</span>
-                  <button onClick={()=>setBillItems(i=>i.map(x=>x.id===item.id?{...x,qty:x.qty+1}:x))} style={{ width:24,height:24,borderRadius:6,background:T.card,border:`1px solid ${T.cardBorder}`,color:T.text,cursor:"pointer",fontSize:14 }}>+</button>
-                </div>
-                <span style={{ minWidth:65,textAlign:"right",color:"#10b981",fontWeight:600,fontSize:12,marginLeft:6 }}>{fmt(item.sell*item.qty,cur)}</span>
-                <button onClick={()=>setBillItems(i=>i.filter(x=>x.id!==item.id))} style={{ background:"none",border:"none",color:"#ef4444",cursor:"pointer",fontSize:15,marginLeft:5 }}>✕</button>
-              </div>
-            ))}
-            <div style={{ display:"flex",justifyContent:"space-between",paddingTop:9,borderTop:`1px solid ${T.hdrLine}`,marginTop:3,fontFamily:ff,fontSize:13 }}>
-              <span style={{ color:T.text2 }}>{isUr?"کل:":"Total:"}</span><span style={{ fontWeight:700,fontSize:15,color:T.text }}>{fmt(billTotal,cur)}</span>
-            </div>
-            <div style={{ marginTop:9 }}><label style={lbl}>{isUr?"ادا کردہ رقم":"Paid"} ({cur})</label><input type="number" value={paid} onChange={e=>setPaid(e.target.value)} style={inp} placeholder="0"/></div>
-            <div style={{ display:"flex",justifyContent:"space-between",alignItems:"center",marginTop:9,padding:"9px 0",fontFamily:ff,fontSize:13 }}>
-              <span style={{ color:T.text2 }}>{isUr?"باقی:":"Balance:"}</span>
-              <span style={{ fontWeight:700,fontSize:16,color:billBal>0?"#ef4444":"#10b981" }}>{fmt(Math.abs(billBal),cur)} {billBal>0?(isUr?"واجب":"Due"):(isUr?"واپسی":"Change")}</span>
-            </div>
-            <button onClick={finBill} style={priBtn}>🧾 {isUr?"بل مکمل کریں":"Finalize & Receipt"}</button>
-            <button onClick={()=>{setBillItems([]);setCname("");setPaid("");}} style={secBtn}>{isUr?"صاف کریں":"Clear"}</button>
-          </div>}
-          {billItems.length===0&&<div style={{ textAlign:"center",padding:26,color:T.text3,fontSize:12 }}><div style={{ fontSize:30,marginBottom:7 }}>🧾</div>{isUr?"اوپر سے مصنوع ٹیپ کریں":"Tap a product to add"}</div>}
-          {/* Previous bills */}
-          {bills.length>0&&<><div style={hdr}>{isUr?"پچھلے بل":"Previous Bills"}</div>
-          {bills.slice(0,5).map(b=>(
-            <div key={b.id} className="hv" onClick={()=>setShowReceipt(b)} style={{ ...gl,borderRadius:9,padding:"9px 12px",marginBottom:6,display:"flex",justifyContent:"space-between",alignItems:"center",cursor:"pointer" }}>
-              <div><div style={{ fontFamily:ff,fontSize:13,fontWeight:600,color:T.text }}>{b.customer}</div><div style={{ fontSize:10,color:T.text2 }}>{b.billNo} • {dateStr(b.date)}</div></div>
-              <div style={{ textAlign:"right" }}><div style={{ color:"#10b981",fontWeight:700 }}>{fmt(b.total,cur)}</div><div style={{ fontSize:10,color:b.bal>0?"#ef4444":"#10b981" }}>{b.bal>0?`⏳ ${fmt(b.bal,cur)}`:"✅ ادا"}</div></div>
-            </div>
-          ))}</>}
-        </div>}
-
-        {/* FAVORITES */}
-        {page==="favs"&&<div>
-          {favItems.length===0?<div style={{ textAlign:"center",padding:55,color:T.text3 }}><div style={{ fontSize:34,marginBottom:7 }}>❤️</div>{isUr?"کوئی پسندیدہ نہیں":"No favorites yet"}</div>:
-          <div style={{ display:"grid",gridTemplateColumns:"1fr 1fr",gap:9 }}>
-            {favItems.map(p=><PCard key={p.id} p={p} lang={lang} cur={cur} ff={ff} thresh={thresh} T={T} isDark={isDark} onEdit={openEdit} onDel={delProd} onFav={togFav} onBill={addBill}/>)}
-          </div>}
-        </div>}
-
-        {/* SETTINGS */}
-        {page==="set"&&<div>
-          <div style={{ ...gl,borderRadius:13,padding:15,marginBottom:11 }}>
-            <div style={{ fontFamily:ff,fontWeight:600,marginBottom:11,fontSize:14,color:T.text }}>{isUr?"ایپ ترتیبات":"App Settings"}</div>
-            {[{k:"shopName",lbl:isUr?"دکان کا نام":"Shop Name",val:shopName,fn:setShopName,t:"text"},{k:"cur",lbl:isUr?"کرنسی":"Currency",val:cur,fn:setCur,t:"text"},{k:"thresh",lbl:isUr?"کم اسٹاک حد":"Low Stock Alert",val:thresh,fn:v=>setThresh(+v),t:"number"}].map(f=>(
-              <div key={f.k} style={{ marginBottom:10 }}><label style={lbl}>{f.lbl}</label><input type={f.t} value={f.val} onChange={e=>f.fn(e.target.value)} style={inp} dir="auto"/></div>
-            ))}
-            <div style={{ marginBottom:10 }}><label style={lbl}>{isUr?"زبان":"Language"}</label>
-              <div style={{ display:"flex",gap:6 }}>
-                {[["ur","اردو"],["en","English"],["roman","Roman"]].map(([c,l])=>(
-                  <button key={c} onClick={()=>setLang(c)} style={{ flex:1,padding:"8px",borderRadius:9,background:lang===c?"linear-gradient(135deg,#3b82f6,#6366f1)":T.card,border:lang===c?"1px solid #3b82f6":`1px solid ${T.cardBorder}`,color:lang===c?"white":T.text2,cursor:"pointer",fontSize:11 }}>{l}</button>
-                ))}
-              </div>
-            </div>
-            <div style={{ marginBottom:10 }}><label style={lbl}>{isUr?"تھیم":"Theme"}</label>
-              <div style={{ display:"flex",gap:6 }}>
-                {[["dark","🌙 Dark"],["white","☀️ White"]].map(([t,l])=>(
-                  <button key={t} onClick={()=>setTheme(t)} style={{ flex:1,padding:"9px",borderRadius:9,background:theme===t?"linear-gradient(135deg,#3b82f6,#6366f1)":T.card,border:theme===t?"1px solid #3b82f6":`1px solid ${T.cardBorder}`,color:theme===t?"white":T.text2,cursor:"pointer",fontSize:12 }}>{l}</button>
-                ))}
-              </div>
-            </div>
-            <button onClick={()=>{ playSound("success"); showT(isUr?"محفوظ ✓":"Saved ✓","ok"); }} style={priBtn}>{isUr?"محفوظ کریں":"Save Settings"}</button>
-          </div>
-          <div style={{ ...gl,borderRadius:13,padding:15,marginBottom:11 }}>
-            <div style={{ fontFamily:ff,fontWeight:600,marginBottom:11,fontSize:14,color:T.text }}>{isUr?"ڈیٹا":"Data"}</div>
-            <button onClick={()=>{ const d={products,sales,bills}; const b=new Blob([JSON.stringify(d,null,2)],{type:"application/json"}); const u=URL.createObjectURL(b); const a=document.createElement("a"); a.href=u; a.download="bablo-shop-data.json"; a.click(); playSound("success"); showT(isUr?"برآمد ✓":"Exported ✓","ok"); }} style={secBtn}>{isUr?"💾 ڈیٹا برآمد کریں":"💾 Export Data"}</button>
-            <button onClick={()=>{ if(window.confirm(isUr?"تمام ڈیٹا صاف کریں؟":"Reset all data?")){ setProducts(INIT_P); setSales([]); setBills([]); playSound("delete"); showT(isUr?"ری سیٹ ✓":"Reset ✓","ok"); } }} style={{ ...secBtn,border:"1px solid rgba(239,68,68,0.3)",color:"#ef4444",background:"rgba(239,68,68,0.06)" }}>{isUr?"🗑️ تمام ڈیٹا ری سیٹ":"🗑️ Reset All Data"}</button>
-          </div>
-          <div style={{ ...gl,borderRadius:13,padding:15,textAlign:"center" }}>
-            <div style={{ fontSize:40,marginBottom:7 }}>🛒</div>
-            <div style={{ fontWeight:700,fontSize:16,color:T.text }}>Bablo Shop</div>
-            <div style={{ fontSize:12,color:T.text2,marginTop:3 }}>Professional Grocery Management</div>
-            <div style={{ fontSize:12,color:T.text2,marginTop:3 }}>by <strong style={{ color:"#3b82f6" }}>Muhammad Usman</strong></div>
-            <div style={{ fontSize:11,color:T.text3,marginTop:3 }}>v2.0 • Pakistan 🇵🇰</div>
-          </div>
-        </div>}
-
-      </div>
-
-      {/* BOTTOM NAV */}
-      <div style={{ position:"fixed",bottom:0,left:"50%",transform:"translateX(-50%)",width:"100%",maxWidth:520,height:60,display:"flex",alignItems:"center",justifyContent:"space-around",background:T.navBg,borderTop:`1px solid ${T.topbarBorder}`,backdropFilter:"blur(20px)",WebkitBackdropFilter:"blur(20px)",zIndex:100,boxShadow:isDark?"none":"0 -2px 16px rgba(59,130,246,0.08)" }}>
-        {[{pg:"home",icon:"🏠",ur:"ہوم",en:"Home"},{pg:"prods",icon:"📦",ur:"اشیاء",en:"Items"},{pg:"bill",icon:"🧾",ur:"بل",en:"Bill"},{pg:"rep",icon:"📊",ur:"رپورٹ",en:"Report"},{pg:"set",icon:"⚙️",ur:"مزید",en:"More"}].map(n=>(
-          <button key={n.pg} className="nb" onClick={()=>nav(n.pg)} style={{ color:page===n.pg?"#3b82f6":T.text3 }}>
-            <span style={{ fontSize:18 }}>{n.icon}</span>
-            <span style={{ fontSize:9,fontFamily:ff }}>{lang==="en"?n.en:n.ur}</span>
-          </button>
-        ))}
-      </div>
-
-      {/* PRODUCT MODAL */}
-      {modal==="prod"&&(
-        <div onClick={()=>setModal(null)} style={{ position:"fixed",inset:0,zIndex:500,background:"rgba(0,0,0,0.6)",backdropFilter:"blur(7px)",display:"flex",alignItems:"flex-end",justifyContent:"center" }}>
-          <div onClick={e=>e.stopPropagation()} style={{ ...gl,width:"100%",maxWidth:520,maxHeight:"88vh",overflowY:"auto",borderRadius:"15px 15px 0 0",padding:"17px 15px 34px",animation:"su 0.27s ease" }}>
-            <div style={{ display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:13 }}>
-              <span style={{ fontFamily:ff,fontWeight:600,fontSize:14,color:T.text }}>{editP?(isUr?"ترمیم کریں":"Edit Product"):(isUr?"مصنوع شامل کریں":"Add Product")}</span>
-              <button onClick={()=>setModal(null)} style={{ background:T.card,border:`1px solid ${T.cardBorder}`,borderRadius:7,width:27,height:27,color:T.text,cursor:"pointer",fontSize:13 }}>✕</button>
-            </div>
-            {/* Image upload */}
-            <div style={{ marginBottom:11 }}>
-              <label style={lbl}>{isUr?"تصویر":"Product Image"}</label>
-              <div style={{ display:"flex",gap:8,alignItems:"center" }}>
-                <div style={{ width:60,height:60,borderRadius:10,overflow:"hidden",background:isDark?"rgba(255,255,255,0.08)":"#f1f5f9",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0 }}>
-                  {form.img?<img src={form.img} style={{ width:"100%",height:"100%",objectFit:"cover" }} alt=""/>:<span style={{ fontSize:26 }}>{form.emoji||"📦"}</span>}
-                </div>
-                <div style={{ flex:1 }}>
-                  <input ref={formImgRef} type="file" accept="image/*" style={{ display:"none" }} onChange={e=>handleImgUpload(e.target.files[0],true)}/>
-                  <button onClick={()=>formImgRef.current?.click()} className="img-upload-btn">📷 {isUr?"تصویر اپلوڈ کریں":"Upload Image"}</button>
-                  {form.img&&<button onClick={()=>setForm(v=>({...v,img:null}))} style={{ marginTop:5,width:"100%",padding:"5px",borderRadius:7,background:"rgba(239,68,68,0.08)",border:"1px solid rgba(239,68,68,0.2)",color:"#ef4444",fontSize:11,cursor:"pointer" }}>🗑️ {isUr?"تصویر ہٹائیں":"Remove Image"}</button>}
-                </div>
-              </div>
-            </div>
-            {/* Emoji */}
-            <div style={{ marginBottom:9 }}>
-              <label style={lbl}>{isUr?"ایموجی":"Emoji"}</label>
-              <input value={form.emoji||"📦"} onChange={e=>setForm(v=>({...v,emoji:e.target.value}))} style={{ ...inp,width:70 }}/>
-            </div>
-            {[{k:"ur",l:isUr?"نام (اردو)":"Name (Urdu)",d:"rtl"},{k:"en",l:"Name (English)",d:"ltr"},{k:"roman",l:"Roman Urdu",d:"ltr"}].map(f=>(
-              <div key={f.k} style={{ marginBottom:9 }}><label style={lbl}>{f.l}</label><input value={form[f.k]||""} onChange={e=>setForm(v=>({...v,[f.k]:e.target.value}))} style={inp} dir={f.d}/></div>
-            ))}
-            <div style={{ marginBottom:9 }}><label style={lbl}>{isUr?"زمرہ":"Category"}</label>
-              <select value={form.cat} onChange={e=>setForm(v=>({...v,cat:e.target.value}))} style={sel}>
-                {CATS.filter(c=>c.id!=="all").map(c=><option key={c.id} value={c.id}>{c.ur} ({c.en})</option>)}
-              </select>
-            </div>
-            <div style={{ display:"grid",gridTemplateColumns:"1fr 1fr",gap:7,marginBottom:9 }}>
-              {[{k:"buy",l:isUr?"خریداری":"Buy"},{k:"sell",l:isUr?"فروخت":"Sell"},{k:"stock",l:isUr?"اسٹاک":"Stock"}].map(f=>(
-                <div key={f.k}><label style={lbl}>{f.l}</label><input type="number" value={form[f.k]||""} onChange={e=>setForm(v=>({...v,[f.k]:e.target.value}))} style={inp}/></div>
-              ))}
-              <div><label style={lbl}>{isUr?"اکائی":"Unit"}</label>
-                <select value={form.unit} onChange={e=>setForm(v=>({...v,unit:e.target.value}))} style={sel}>
-                  {["kg","g","ltr","ml","pcs","pkt","dzn","box","btl"].map(u=><option key={u} value={u}>{u}</option>)}
-                </select>
-              </div>
-            </div>
-            <button onClick={saveProd} style={priBtn}>✔ {isUr?"محفوظ کریں":"Save"}</button>
-            <button onClick={()=>setModal(null)} style={secBtn}>{isUr?"رد کریں":"Cancel"}</button>
-          </div>
-        </div>
-      )}
-
-      {/* NOTIF MODAL */}
-      {modal==="notif"&&(
-        <div onClick={()=>setModal(null)} style={{ position:"fixed",inset:0,zIndex:500,background:"rgba(0,0,0,0.55)",backdropFilter:"blur(6px)",display:"flex",alignItems:"flex-end",justifyContent:"center" }}>
-          <div onClick={e=>e.stopPropagation()} style={{ ...gl,width:"100%",maxWidth:520,maxHeight:"60vh",overflowY:"auto",borderRadius:"15px 15px 0 0",padding:"17px 15px 34px",animation:"su 0.27s ease" }}>
-            <div style={{ display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:13 }}>
-              <span style={{ fontFamily:ff,fontWeight:600,fontSize:14,color:T.text }}>🔔 {isUr?"الرٹ":"Alerts"}</span>
-              <button onClick={()=>setModal(null)} style={{ background:T.card,border:`1px solid ${T.cardBorder}`,borderRadius:7,width:27,height:27,color:T.text,cursor:"pointer",fontSize:13 }}>✕</button>
-            </div>
-            {lowItems.length===0?<div style={{ textAlign:"center",padding:22,color:T.text3,fontSize:12 }}>✅ {isUr?"سب ٹھیک":"All OK"}</div>:
-            lowItems.map(p=>(
-              <div key={p.id} style={{ background:T.lowBg,border:"1px solid rgba(245,158,11,0.2)",borderRadius:10,padding:"10px 12px",marginBottom:7,display:"flex",justifyContent:"space-between",alignItems:"center" }}>
-                <div style={{ display:"flex",alignItems:"center",gap:8 }}>
-                  <span style={{ fontSize:20 }}>{p.emoji}</span>
-                  <div><div style={{ fontFamily:ff,fontSize:13,color:T.text }}>{gn(p,lang)}</div><div style={{ fontSize:10,color:T.text2 }}>{p.en}</div></div>
-                </div>
-                <span style={{ color:"#f59e0b",fontWeight:700,fontSize:12 }}>{p.stock} {p.unit}</span>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {/* RECEIPT MODAL */}
-      {showReceipt&&(
-        <div onClick={()=>setShowReceipt(null)} style={{ position:"fixed",inset:0,zIndex:600,background:"rgba(0,0,0,0.7)",backdropFilter:"blur(8px)",display:"flex",alignItems:"center",justifyContent:"center",padding:"20px 12px" }}>
-          <div onClick={e=>e.stopPropagation()} ref={receiptRef} style={{ ...gl,width:"100%",maxWidth:400,maxHeight:"88vh",overflowY:"auto",borderRadius:16,padding:"20px 18px",animation:"su 0.27s ease" }}>
-            {/* Receipt Header */}
-            <div style={{ textAlign:"center",marginBottom:14,paddingBottom:14,borderBottom:`2px dashed ${T.hdrLine}` }}>
-              <div style={{ fontSize:32,marginBottom:6 }}>🛒</div>
-              <div style={{ fontFamily:"'Noto Nastaliq Urdu',serif",fontWeight:700,fontSize:18,color:T.text }}>{shopName}</div>
-              <div style={{ fontSize:11,color:T.text2,marginTop:2 }}>Bablo Shop — Professional Grocery</div>
-              <div style={{ display:"inline-block",background:"linear-gradient(135deg,#3b82f6,#6366f1)",color:"white",padding:"3px 14px",borderRadius:99,fontSize:11,marginTop:7,fontWeight:600 }}>
-                Bill# {showReceipt.billNo||"BS-001"}
-              </div>
-            </div>
-            {/* Meta */}
-            <div style={{ display:"flex",justifyContent:"space-between",fontSize:11,color:T.text2,padding:"8px 0",borderBottom:`1px solid ${T.hdrLine}`,marginBottom:8 }}>
-              <span>👤 {showReceipt.customer}</span>
-              <span>📅 {dateStr(showReceipt.date)}</span>
-            </div>
-            {/* Items */}
-            {showReceipt.items.map((item,i)=>(
-              <div key={i} style={{ display:"flex",justifyContent:"space-between",alignItems:"center",padding:"7px 0",borderBottom:`1px solid ${T.hdrLine}` }}>
-                <div style={{ flex:1 }}>
-                  <div style={{ fontFamily:ff,fontSize:13,fontWeight:600,color:T.text }}>{item.ur}</div>
-                  <div style={{ fontSize:10,color:T.text2 }}>{item.en} • {fmt(item.sell,cur)} × {item.qty} {item.unit}</div>
-                </div>
-                <span style={{ fontWeight:700,color:"#10b981",fontSize:13 }}>{fmt(item.sell*item.qty,cur)}</span>
-              </div>
-            ))}
-            {/* Totals */}
-            <div style={{ marginTop:10,background:isDark?"rgba(59,130,246,0.08)":"rgba(59,130,246,0.05)",borderRadius:10,padding:"10px 12px" }}>
-              {[{l:isUr?"کل رقم":"Total",v:fmt(showReceipt.total,cur),bold:false},{l:isUr?"ادا کردہ":"Paid",v:fmt(showReceipt.paid,cur),bold:false}].map((r,i)=>(
-                <div key={i} style={{ display:"flex",justifyContent:"space-between",padding:"4px 0",fontSize:13,color:T.text }}><span style={{ color:T.text2 }}>{r.l}</span><span style={{ fontWeight:r.bold?700:400 }}>{r.v}</span></div>
-              ))}
-              <div style={{ display:"flex",justifyContent:"space-between",padding:"8px 0 0",borderTop:`1px solid ${T.hdrLine}`,marginTop:4,fontWeight:700,fontSize:15 }}>
-                <span style={{ fontFamily:ff,color:T.text }}>{showReceipt.bal>0?(isUr?"باقی رقم":"Balance Due"):(isUr?"واپسی":"Change")}</span>
-                <span style={{ color:showReceipt.bal>0?"#ef4444":"#10b981" }}>{fmt(Math.abs(showReceipt.bal),cur)}</span>
-              </div>
-            </div>
-            {/* Footer */}
-            <div style={{ textAlign:"center",marginTop:12,padding:"10px 0",borderTop:`1px dashed ${T.hdrLine}`,fontSize:11,color:T.text3 }}>
-              <div style={{ fontFamily:"'Noto Nastaliq Urdu',serif",marginBottom:3 }}>شکریہ! آپ کا شکریہ</div>
-              <div>Thank you for shopping! 🙏</div>
-            </div>
-            {/* Action buttons */}
-            <div style={{ display:"flex",gap:8,marginTop:12 }}>
-              <button onClick={()=>downloadReceipt(showReceipt)} style={{ ...priBtn,flex:1,marginTop:0,fontSize:12 }}>🖨️ {isUr?"پرنٹ / PDF":"Print/PDF"}</button>
-              <button onClick={()=>shareReceipt(showReceipt)} style={{ ...secBtn,flex:1,marginTop:0,fontSize:12,display:"flex",alignItems:"center",justifyContent:"center",gap:5 }}>📤 {isUr?"شیئر":"Share"}</button>
-              <button onClick={()=>setShowReceipt(null)} style={{ width:40,height:40,borderRadius:10,background:T.card,border:`1px solid ${T.cardBorder}`,color:T.text,cursor:"pointer",fontSize:16,marginTop:0,display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0 }}>✕</button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* CALCULATOR */}
-      {showCalc&&(
-        <div onClick={()=>setShowCalc(false)} style={{ position:"fixed",inset:0,zIndex:550,background:"rgba(0,0,0,0.6)",backdropFilter:"blur(8px)",display:"flex",alignItems:"flex-end",justifyContent:"center" }}>
-          <div onClick={e=>e.stopPropagation()} style={{ ...gl,width:"100%",maxWidth:360,borderRadius:"18px 18px 0 0",padding:"16px 14px 28px",animation:"su 0.27s ease" }}>
-            <div style={{ display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:10 }}>
-              <span style={{ fontFamily:ff,fontWeight:600,fontSize:14,color:T.text }}>🧮 {isUr?"کیلکولیٹر":"Calculator"}</span>
-              <button onClick={()=>setShowCalc(false)} style={{ background:T.card,border:`1px solid ${T.cardBorder}`,borderRadius:7,width:27,height:27,color:T.text,cursor:"pointer",fontSize:13 }}>✕</button>
-            </div>
-            {/* Display */}
-            <div style={{ background:isDark?"rgba(0,0,0,0.4)":"rgba(59,130,246,0.06)",border:`1px solid ${T.cardBorder}`,borderRadius:12,padding:"14px 16px",marginBottom:12,textAlign:"right",minHeight:70 }}>
-              <div style={{ fontSize:11,color:T.text3,minHeight:16 }}>{calcPrev}{calcOp&&` ${calcOp}`}</div>
-              <div style={{ fontSize:28,fontWeight:700,color:T.text,letterSpacing:1 }}>{calcVal}</div>
-            </div>
-            {/* Buttons */}
-            {[["C","±","%","÷"],["7","8","9","×"],["4","5","6","-"],["1","2","3","+"],[" ","0",".","="]].map((row,ri)=>(
-              <div key={ri} style={{ display:"grid",gridTemplateColumns:"1fr 1fr 1fr 1fr",gap:7,marginBottom:7 }}>
-                {row.map((btn,bi)=>{
-                  const isOp=["+","-","×","÷","="].includes(btn);
-                  const isTop=ri===0;
-                  const isEmpty=btn===" ";
-                  return(
-                    <button key={bi} onClick={()=>!isEmpty&&calcPress(btn)} style={{ padding:"14px 6px",borderRadius:11,border:"none",fontSize:16,fontWeight:600,cursor:isEmpty?"default":"pointer",background:isOp?"linear-gradient(135deg,#3b82f6,#6366f1)":isTop?isDark?"rgba(255,255,255,0.15)":"rgba(99,102,241,0.12)":isDark?"rgba(255,255,255,0.08)":"rgba(100,116,139,0.08)",color:isOp?"white":isTop?"#3b82f6":T.text,opacity:isEmpty?0:1,transition:"transform 0.08s,opacity 0.1s",gridColumn:btn==="0"?"span 2":"span 1" }}>
-                      {btn}
-                    </button>
-                  );
-                })}
-              </div>
-            ))}
-            <button onClick={()=>{ navigator.clipboard.writeText(calcVal); showT(isUr?"کاپی ✓":"Copied ✓","ok"); }} style={{ ...secBtn,marginTop:4,fontSize:12 }}>📋 {isUr?"نتیجہ کاپی کریں":"Copy Result"}</button>
-          </div>
-        </div>
-      )}
-
-      {/* TOAST */}
-      {toast&&<div style={{ position:"fixed",bottom:68,left:"50%",transform:"translateX(-50%)",background:isDark?"rgba(8,16,32,0.96)":"rgba(255,255,255,0.97)",border:`1px solid ${toast.type==="ok"?"#10b981":toast.type==="warn"?"#f59e0b":"#ef4444"}`,backdropFilter:"blur(20px)",color:T.text,padding:"8px 18px",borderRadius:99,fontFamily:ff,fontSize:12,zIndex:700,whiteSpace:"nowrap",maxWidth:280,textAlign:"center",boxShadow:"0 4px 20px rgba(0,0,0,0.2)" }}>{toast.msg}</div>}
-    </div>
-  );
+  container.innerHTML = html;
 }
 
-// ── Product Card ──────────────────────────────────────────────────────────────
-function PCard({p,lang,cur,ff,thresh,T,isDark,onEdit,onDel,onFav,onBill}) {
-  const name=lang==="en"?p.en:lang==="roman"?p.roman:p.ur;
-  const low=p.stock<=thresh,warn=p.stock<=thresh*2&&!low;
-  return(
-    <div className="pcrd">
-      <div style={{ position:"absolute",top:0,left:0,right:0,height:3,background:"linear-gradient(90deg,#3b82f6,#6366f1)",borderRadius:"14px 14px 0 0" }}/>
-      {/* Image or emoji */}
-      <div style={{ width:"100%",height:72,borderRadius:9,overflow:"hidden",marginBottom:8,background:isDark?"rgba(255,255,255,0.06)":"rgba(59,130,246,0.06)",display:"flex",alignItems:"center",justifyContent:"center",position:"relative" }}>
-        {p.img?<img src={p.img} style={{ width:"100%",height:"100%",objectFit:"cover" }} alt=""/>:<span style={{ fontSize:30 }}>{p.emoji||"📦"}</span>}
-        <button onClick={()=>onFav(p.id)} style={{ position:"absolute",top:4,right:4,background:"rgba(0,0,0,0.25)",border:"none",cursor:"pointer",fontSize:14,padding:3,borderRadius:99 }}>{p.fav?"❤️":"🤍"}</button>
-      </div>
-      <div style={{ fontFamily:ff,fontSize:13,fontWeight:600,marginBottom:2,lineHeight:1.35,color:T.text }}>{name}</div>
-      <div style={{ fontSize:10,color:T.text2,marginBottom:5 }}>{p.en}</div>
-      <div style={{ fontSize:14,fontWeight:700,color:"#10b981",marginBottom:2 }}>{cur}{p.sell}</div>
-      <div style={{ fontSize:10,color:low?"#ef4444":warn?"#f59e0b":T.text3,marginBottom:8 }}>{low?"⚠️ ":warn?"⚡ ":""}{p.stock} {p.unit}</div>
-      <div style={{ display:"flex",gap:5 }}>
-        <button onClick={()=>onBill(p)} style={{ flex:2,padding:"6px 2px",borderRadius:7,background:"rgba(16,185,129,0.12)",border:"1px solid rgba(16,185,129,0.22)",color:"#10b981",fontSize:10,cursor:"pointer",fontFamily:ff }}>+{lang==="en"?"Bill":"بل"}</button>
-        <button onClick={()=>onEdit(p)} style={{ flex:1,padding:"6px",borderRadius:7,background:"rgba(59,130,246,0.1)",border:"1px solid rgba(59,130,246,0.2)",color:"#3b82f6",fontSize:11,cursor:"pointer" }}>✏️</button>
-        <button onClick={()=>onDel(p.id)} style={{ flex:1,padding:"6px",borderRadius:7,background:"rgba(239,68,68,0.08)",border:"1px solid rgba(239,68,68,0.18)",color:"#ef4444",fontSize:11,cursor:"pointer" }}>🗑️</button>
-      </div>
-    </div>
-  );
+// ─── Main Render ─────────────────────────────────────────────────────────────
+function renderPage() {
+  const T=getT(); const { isUr, ff, lowItems, pages } = computed();
+
+  // Preserve scroll if same page
+  const pc = document.getElementById("page-content");
+  let html = "";
+  if (state.page==="home") html = renderHome();
+  else if (state.page==="prods") html = renderProds();
+  else if (state.page==="sales2") html = renderSales();
+  else if (state.page==="stk") html = renderStock();
+  else if (state.page==="rep") html = renderReports();
+  else if (state.page==="bill") html = renderBilling();
+  else if (state.page==="favs") html = renderFavs();
+  else if (state.page==="set") html = renderSettings();
+  pc.innerHTML = html;
 }
+
+function render() {
+  const T=getT(); const { isUr, ff, dir, lowItems, pages } = computed();
+
+  // Body / app background
+  document.body.style.background = T.bg;
+  document.body.style.color = T.text;
+  document.getElementById("app").style.direction = dir;
+  document.getElementById("app").style.fontFamily = ff;
+
+  // Orbs
+  document.getElementById("orb1").style.display = T.isDark ? "block" : "none";
+  document.getElementById("orb2").style.display = T.isDark ? "block" : "none";
+
+  // Topbar
+  const topbar = document.getElementById("topbar");
+  topbar.style.background = T.topbar;
+  topbar.style.borderBottom = `1px solid ${T.topbarBorder}`;
+  topbar.style.boxShadow = T.isDark ? "none" : "0 2px 16px rgba(59,130,246,0.08)";
+  const tbBtnStyle = `background:${T.card};border:1px solid ${T.cardBorder};color:${T.text}`;
+  document.getElementById("btn-drawer").style.cssText += `;${tbBtnStyle}`;
+  document.getElementById("btn-theme").style.cssText += `;${tbBtnStyle}`;
+  document.getElementById("btn-lang").style.cssText += `;${tbBtnStyle}`;
+  document.getElementById("btn-calc").style.cssText += `;${tbBtnStyle}`;
+  document.getElementById("btn-notif").style.cssText += `;${tbBtnStyle}`;
+  document.getElementById("btn-theme").textContent = T.isDark ? "☀️" : "🌙";
+  document.getElementById("btn-lang").textContent = state.lang==="ur"?"اُر":state.lang==="en"?"EN":"RO";
+  document.getElementById("topbar-title").textContent = pages[state.page] || "بابلو شاپ";
+  document.getElementById("topbar-title").style.color = T.text;
+  document.getElementById("topbar-title").style.fontFamily = ff;
+  const badge = document.getElementById("notif-badge");
+  if (lowItems.length > 0) { badge.style.display="flex"; badge.textContent=lowItems.length; } else badge.style.display="none";
+
+  // Drawer
+  const drawer = document.getElementById("drawer");
+  drawer.style.left = isUr ? "auto" : "0";
+  drawer.style.right = isUr ? "0" : "auto";
+  drawer.style.borderRadius = isUr ? "13px 0 0 13px" : "0 13px 13px 0";
+  drawer.style.transform = state.drawer ? "none" : `translateX(${isUr?"100%":"-100%"})`;
+  drawer.style.background = T.drawerBg;
+  drawer.style.border = `1px solid ${T.cardBorder}`;
+  drawer.style.direction = dir;
+  document.getElementById("drawer-overlay").style.display = state.drawer ? "block" : "none";
+  document.getElementById("drawer-header").style.borderBottom = `1px solid ${T.hdrLine}`;
+  document.getElementById("drawer-shopname").textContent = state.shopName;
+  document.getElementById("drawer-shopname").style.color = T.text;
+
+  const navItems = [{pg:"home",icon:"📊",ur:"ڈیش بورڈ",en:"Dashboard"},{pg:"prods",icon:"📦",ur:"مصنوعات",en:"Products"},{pg:"sales2",icon:"💰",ur:"فروخت درج",en:"Record Sale"},{pg:"stk",icon:"📈",ur:"اسٹاک",en:"Stock"},{pg:"rep",icon:"📋",ur:"رپورٹ",en:"Reports"},{pg:"bill",icon:"🧾",ur:"بل بنائیں",en:"Billing"},{pg:"favs",icon:"❤️",ur:"پسندیدہ",en:"Favorites"},{pg:"set",icon:"⚙️",ur:"ترتیبات",en:"Settings"}];
+  document.getElementById("drawer-nav").innerHTML = navItems.map(i=>`
+    <div class="hv" onclick="nav('${i.pg}')" style="padding:11px 16px;cursor:pointer;display:flex;align-items:center;gap:10px;font-size:13px;border-radius:9px;margin:2px 7px;background:${state.page===i.pg?`rgba(59,130,246,${T.isDark?"0.18":"0.12"})`:"transparent"};color:${state.page===i.pg?"#3b82f6":T.text};font-family:${ff};">
+      <span>${i.icon}</span><span>${state.lang==="en"?i.en:i.ur}</span>
+    </div>`).join("");
+
+  // Bottom nav
+  const bnav = document.getElementById("bottom-nav");
+  bnav.style.background = T.navBg;
+  bnav.style.borderTop = `1px solid ${T.topbarBorder}`;
+  bnav.style.boxShadow = T.isDark ? "none" : "0 -2px 16px rgba(59,130,246,0.08)";
+  const bnavItems = [{pg:"home",icon:"🏠",ur:"ہوم",en:"Home"},{pg:"prods",icon:"📦",ur:"اشیاء",en:"Items"},{pg:"bill",icon:"🧾",ur:"بل",en:"Bill"},{pg:"rep",icon:"📊",ur:"رپورٹ",en:"Report"},{pg:"set",icon:"⚙️",ur:"مزید",en:"More"}];
+  bnav.innerHTML = bnavItems.map(n=>`
+    <button class="nb" onclick="nav('${n.pg}')" style="color:${state.page===n.pg?"#3b82f6":T.text3};">
+      <span style="font-size:18px;">${n.icon}</span>
+      <span style="font-size:9px;font-family:${ff};">${state.lang==="en"?n.en:n.ur}</span>
+    </button>`).join("");
+
+  renderPage();
+  renderModals();
+}
+
+// ─── Events ─────────────────────────────────────────────────────────────────
+document.getElementById("btn-drawer").addEventListener("click", () => { playSound("tap"); state.drawer=!state.drawer; render(); });
+document.getElementById("drawer-overlay").addEventListener("click", () => { state.drawer=false; render(); });
+document.getElementById("btn-theme").addEventListener("click", () => { playSound("tap"); state.theme=state.theme==="dark"?"white":"dark"; save(); render(); });
+document.getElementById("btn-lang").addEventListener("click", () => { playSound("tap"); state.lang=state.lang==="ur"?"en":state.lang==="en"?"roman":"ur"; save(); render(); });
+document.getElementById("btn-calc").addEventListener("click", () => { playSound("tap"); state.showCalc=true; renderModals(); });
+document.getElementById("btn-notif").addEventListener("click", () => { playSound("tap"); state.modal="notif"; renderModals(); });
+
+// ─── PWA ─────────────────────────────────────────────────────────────────────
+let deferredPrompt = null;
+window.addEventListener("beforeinstallprompt", e => {
+  e.preventDefault();
+  deferredPrompt = e;
+  const banner = document.getElementById("pwa-banner");
+  banner.style.display = "flex";
+});
+document.getElementById("pwa-install-btn").addEventListener("click", () => {
+  if (deferredPrompt) {
+    deferredPrompt.prompt();
+    deferredPrompt.userChoice.then(() => { deferredPrompt=null; document.getElementById("pwa-banner").style.display="none"; });
+  }
+});
+document.getElementById("pwa-dismiss-btn").addEventListener("click", () => {
+  document.getElementById("pwa-banner").style.display="none";
+});
+if ("serviceWorker" in navigator) {
+  window.addEventListener("load", () => navigator.serviceWorker.register("sw.js"));
+}
+
+// ─── Splash & Boot ────────────────────────────────────────────────────────────
+const splashDots = document.getElementById("splash-dots");
+for (let i=0;i<3;i++) {
+  const d=document.createElement("div");
+  d.style.cssText=`width:8px;height:8px;border-radius:50%;background:#3b82f6;animation:pulse 1.2s ease ${i*0.2}s infinite`;
+  splashDots.appendChild(d);
+}
+setTimeout(() => {
+  document.getElementById("splash").style.display = "none";
+  document.getElementById("app").style.display = "block";
+  playSound("open");
+  render();
+}, 2000);
+</script>
+</body>
+</html>
