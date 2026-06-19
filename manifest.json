@@ -1,0 +1,27 @@
+{
+  "name": "بابلو شاپ — Bablo Shop",
+  "short_name": "Bablo Shop",
+  "description": "Professional Grocery Management by Muhammad Usman",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#060e1c",
+  "theme_color": "#3b82f6",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["business", "productivity", "shopping"],
+  "lang": "ur",
+  "dir": "rtl"
+}
